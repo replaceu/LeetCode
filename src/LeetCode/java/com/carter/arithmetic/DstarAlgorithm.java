@@ -18,7 +18,6 @@ public class DstarAlgorithm {
 		DstarPathFinder pathFinder = new DstarPathFinder(map);
 		// start traversing
 		pathFinder.traverseMap();
-
 	}
 }
 
@@ -107,7 +106,7 @@ class DstarMap {
 
 	/**
 	 * @deprecated
-	 * 设置目标节点
+	 * 设置目标节点，目标节点进行初始化
 	 * @param x
 	 * @param y
 	 */
