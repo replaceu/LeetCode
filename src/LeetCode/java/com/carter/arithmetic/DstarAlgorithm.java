@@ -2,10 +2,24 @@ package com.carter.arithmetic;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.PriorityQueue;
 
 public class DstarAlgorithm {
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		// create and initialize the map
+		DstarMap map = new DstarMap(7, 7);
+		// load a map
+		map.loadMap("src/LeetCode/resources/map2.txt");
+		// instantiate the DstarPathFinder object
+		DstarPathFinder pathFinder = new DstarPathFinder(map);
+		// start traversing
+		pathFinder.traverseMap();
 
+	}
 }
 
 /**
@@ -14,7 +28,7 @@ public class DstarAlgorithm {
  * 起始点开始搜索，而是以目标点为起始，通过将目标点置于openList中来开始搜索，直到机器人
  * 当前位置节点由队列中出队列为止（当然如果中间某节点状态有动态改变，需要重新寻路，所以
  * 才是一个动态寻路算法）
- * 
+ *
  * state:路径点
  * BackPointer:指向前一个state的指针（路径搜索完毕后，通过机器人所在的state，通过BackPointer
  * 即可一步步移动到目标GoalState，b(X)=Y表示X的父辈为Y）
@@ -27,173 +41,12 @@ public class DstarAlgorithm {
  * 会导致相关的节点到目标的路径开销随之增加），另一种状态为Lower（如果K(x)<H(x)）,用来传递开销的路径减少
  * （例如某两点之间的开销减少，或者某一新的节点被加入到openList中，可能导致与之相关的节点到目标的路径开销
  * 随之减少）
- * 
+ *
  * minimumK:表示所有位于openList上的state的最小值
  * C(X,Y):表示X与Y的路径开销
  * openList：是依据K值由小到大进行排序的优先队列
  */
-class DstarNode implements Comparable<DstarNode> {
-	//new tag
-	private String	tag		= "new";
-	private String	state	= "0";
-	private String	label	= "";
-
-	private int	row;
-	private int	column;
-
-	// current cost to goal from this node
-	private double h;
-	// lowest value of h that this node has seen
-	private double k;
-
-	private DstarNode backPointer;
-
-	public DstarNode(int row, int column) {
-		this.row = row;
-		this.column = column;
-		//concatenate row and column to generate the label,label will be used as a key in the cost hashtable
-		this.setLabel(Integer.toString(row) + Integer.toString(column));
-
-		this.h = 0;
-		this.k = 0;
-		setBackPointer(null);
-	}
-
-	public DstarNode getBackPointer() {
-		return backPointer;
-	}
-
-	public void setBackPointer(DstarNode backPointer) {
-		this.backPointer = backPointer;
-	}
-
-	public String getTag() {
-		return tag;
-	}
-
-	public void setTag(String tag) {
-		this.tag = tag == null ? null : tag.trim();
-	}
-
-	public String getState() {
-		return state;
-	}
-
-	public void setState(String state) {
-		this.state = state == null ? null : state.trim();
-	}
-
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label == null ? null : label.trim();
-	}
-
-	public int getRow() {
-		return row;
-	}
-
-	public void setRow(int row) {
-		this.row = row;
-	}
-
-	public int getColumn() {
-		return column;
-	}
-
-	public void setColumn(int column) {
-		this.column = column;
-	}
-
-	public double getH() {
-		return h;
-	}
-
-	public void setH(double h) {
-		this.h = h;
-	}
-
-	public double getK() {
-		return k;
-	}
-
-	public void setK(double k) {
-		this.k = k;
-	}
-
-	@Override
-	public int compareTo(DstarNode o) {
-		return 0;
-	}
-}
-
-class CostTable {
-	private Map<String, Double> table;
-
-	public CostTable() {
-		this.table = new HashMap<String, Double>();
-	}
-
-	public void setValue(String node1, String node2, double value) {
-		String hashNode = node1 + node2;
-		if (!isSet(node1, node2)) {
-			table.put(hashNode, value);
-		}
-	}
-
-	public void updateValue(String node1, String node2, double value) {
-		String hashFirst = node1 + node2;
-		String hashSecond = node2 + node1;
-		if (table.containsKey(hashFirst)) {
-			table.put(hashFirst, value);
-		} else if (table.containsKey(hashSecond)) {
-			table.put(hashSecond, value);
-		}
-	}
-
-	public double getValue(String node1, String node2) {
-		String hashFirst = node1 + node2;
-		String hashSecond = node2 + node1;
-
-		double value = -1;
-		boolean set = isSet(node1, node2);
-		if (set) {
-			if (table.containsKey(hashFirst)) {
-				value = table.get(hashFirst);
-			} else if (table.containsKey(hashSecond)) {
-				value = table.get(hashSecond);
-			}
-		}
-		return value;
-	}
-
-	public void printCostTable() {
-		int count = 0;
-		for (String key : table.keySet()) {
-
-			double value = table.get(key);
-			System.out.println(count + ": " + key + "=>" + String.format("% ,.1f", value));
-			count++;
-		}
-	}
-
-	public boolean isSet(String node1, String node2) {
-		String hashFirst = node1 + node2;
-		String hashSecond = node2 + node1;
-
-		boolean exists = false;
-		if (table.containsKey(hashFirst) || table.containsKey(hashSecond)) {
-			exists = true;
-		}
-
-		return exists;
-	}
-}
-
 class DstarMap {
-
 	// number of columns and rows for this map
 	private int	rows	= 0;
 	private int	columns	= 0;
@@ -203,13 +56,19 @@ class DstarMap {
 	private DstarNode	goal;
 	private DstarNode	robotLocation;
 
-	//map is implemented and a 2D array of DstarNodes
-	private DstarNode[][] dstarMap;
+	// map is implemented and a 2D array of DstarNodes
+	private DstarNode[][] map;
 
+	/**
+	 * 通过给定的行数和列数创建一张地图
+	 * @param rows number of rows
+	 * @param columns number of columns
+	 */
 	public DstarMap(int rows, int columns) {
 		this.rows = rows;
 		this.columns = columns;
-		dstarMap = new DstarNode[rows][columns];
+
+		map = new DstarNode[rows][columns];
 	}
 
 	public int getRows() {
@@ -220,10 +79,20 @@ class DstarMap {
 		return columns;
 	}
 
+	/**
+	 * 获取节点在地图中的位置
+	 * @param row
+	 * @param column
+	 * @return
+	 */
 	public DstarNode getNode(int row, int column) {
-		return dstarMap[row][column];
+		return map[row][column];
 	}
 
+	/**
+	 * 得到地图中的起点
+	 * @return
+	 */
 	public DstarNode getStart() {
 		return start;
 	}
@@ -236,27 +105,56 @@ class DstarMap {
 		return goal;
 	}
 
+	/**
+	 * @deprecated
+	 * 设置目标节点
+	 * @param x
+	 * @param y
+	 */
 	public void setGoal(int x, int y) {
 		this.goal = getNode(x, y);
-		this.goal.setK(0);
-		this.goal.setH(0);
+		this.goal.setFunctionK(0);
+		this.goal.setFunctionH(0);
 	}
 
+	/**
+	 * Returns the local know node where the robot is located
+	 *
+	 * @return the node where the robot is located
+	 */
 	public DstarNode getRobotLocation() {
 		return robotLocation;
 	}
 
+	/**
+	 * Sets the robots positions
+	 *
+	 * @param robotLocation the node where the robot is located
+	 *
+	 */
 	public void setRobotLocation(DstarNode robotLocation) {
 		this.robotLocation = robotLocation;
 	}
 
-	public List<DstarNode> getNeighbors(int row, int col) {
+	/**
+	 * Returns list of neighbors for a node at a given position
+	 *
+	 * @param row row position of node
+	 * @param col column position of node
+	 *
+	 * @return list of neighbor nodes
+	 */
+	public ArrayList<DstarNode> getNeighbors(int row, int col) {
+		// set top and bottom neighbor row values
 		int top = row - 1;
 		int bottom = row + 1;
+
+		ArrayList<DstarNode> neighborList = new ArrayList<DstarNode>();
+
+		// set left and right neighbor column values
 		int left = col - 1;
 		int right = col + 1;
 
-		List<DstarNode> neighborList = new ArrayList<>();
 		// top left adjecent neighbor
 		if (!neighborOutOfBounds(top, col)) {
 			neighborList.add(getNode(top, col));
@@ -306,24 +204,34 @@ class DstarMap {
 		return neighborList;
 	}
 
+	/**
+	 * 检查给定的行列是否超出地图的边界
+	 * @param row row number to check
+	 * @param column column number to check
+	 * @return true if either row or column is out of bounds, false if the row and column are valid
+	 */
 	private boolean neighborOutOfBounds(int row, int column) {
-		boolean outOfBonds = false;
+
+		boolean outOfBounds = false;
 		if (row < 0 || row >= getRows() || column < 0 || column >= getColumns()) {
-			outOfBonds = true;
+			outOfBounds = true;
 		}
-		return outOfBonds;
+		return outOfBounds;
 	}
 
-	public void loadMap(String filename) {
+	/**
+	 * 读取地图
+	 */
+	public void loadMap(String fileName) {
 		int row = 0;
 		int column = 0;
 
-		File file = new File(filename);
+		File file = new File(fileName);
 
 		if (file.exists()) {
 			if (file.isFile() && file.canRead()) {
 				try {
-					FileInputStream in = new FileInputStream(filename);
+					FileInputStream in = new FileInputStream(fileName);
 					int read;
 					while ((read = in.read()) != -1) {
 						char c = (char) read;
@@ -341,7 +249,7 @@ class DstarMap {
 							}
 
 							node.setState(String.valueOf(state));
-							dstarMap[row][column] = node;
+							map[row][column] = node;
 							column++;
 						} else {
 							row++;
@@ -369,13 +277,13 @@ class DstarMap {
 	 */
 	public void print() {
 
-		int cell_column_count = 15;
-		int row_column_count = cell_column_count * this.columns;
+		int cellColumnCount = 15;
+		int rowColumnCount = cellColumnCount * this.columns;
 
 		char space = ' ';
-		char row_seperator_char = '-';
+		char rowSeparatorChar = '-';
 
-		String row_seperator = repeatChar(row_seperator_char, row_column_count + 1);
+		String rowSeparator = repeatChar(rowSeparatorChar, rowColumnCount + 1);
 		String cr1; // cell row 1
 		String cr2; // cell row 2
 		String cr3; // cell row 3
@@ -384,7 +292,7 @@ class DstarMap {
 		String cr6; // cell row 6
 
 		// loop through rows
-		for (int i = 0; i < dstarMap.length; i++) {
+		for (int i = 0; i < map.length; i++) {
 			// new row, reinitialize cell row strings
 			cr1 = "";
 			cr2 = "";
@@ -394,7 +302,7 @@ class DstarMap {
 			cr6 = "";
 
 			// loop through cells and concatenate values to cell row strings
-			for (int j = 0; j < dstarMap[i].length; j++) {
+			for (int j = 0; j < map[i].length; j++) {
 				DstarNode node = getNode(i, j);
 
 				String startOrGoal = " ";
@@ -412,8 +320,8 @@ class DstarMap {
 				String tag = node.getTag();
 				String state = node.getState();
 				String label = node.getLabel();
-				String hval = "h:" + String.format("% ,.1f", node.getH());
-				String kval = "k:" + String.format("% ,.1f", node.getK());
+				String hval = "h:" + String.format("% ,.1f", node.getFunctionH());
+				String kval = "k:" + String.format("% ,.1f", node.getFunctionK());
 
 				String bp = "";
 				if (node.getBackPointer() == null) {
@@ -439,7 +347,7 @@ class DstarMap {
 			cr5 += "|";
 			cr6 += "|";
 
-			System.out.println(row_seperator);
+			System.out.println(rowSeparator);
 			System.out.println(cr1);
 			System.out.println(cr2);
 			System.out.println(cr3);
@@ -449,7 +357,7 @@ class DstarMap {
 			;
 		}
 
-		System.out.println(row_seperator);
+		System.out.println(rowSeparator);
 	}
 
 	private String repeatChar(char c, int num) {
@@ -460,7 +368,223 @@ class DstarMap {
 
 		return repeated;
 	}
+}
 
+class DstarNode implements Comparable<DstarNode> {
+	// Node Tag
+	private String	tag		= "NEW";
+	private String	state	= "O";
+	private String	label	= "";
+
+	private int	row;
+	private int	column;
+
+	private double	functionH;	// current cost to goal from this node
+	private double	functionK;	// lowest value of h that this node has seen
+	//private ArrayList<DstarNode> neighborList;
+
+	private DstarNode backPointer;
+
+	public DstarNode(int row, int column) {
+
+		// let this column know where it is at
+		this.row = row;
+		this.column = column;
+
+		// concatenate row and column to generate the label
+		// label will be used as a key in the cost hashtable
+		this.setLabel(Integer.toString(row) + Integer.toString(column));
+
+		this.functionH = 0;
+		this.functionK = 0;
+		setBackPointer(null);
+		//neighborList = new ArrayList<DstarNode>();
+	}
+
+	public DstarNode getBackPointer() {
+		return backPointer;
+	}
+
+	public void setBackPointer(DstarNode backPointer) {
+		this.backPointer = backPointer;
+	}
+
+	public int getRow() {
+		return row;
+	}
+
+	public int getColumn() {
+		return column;
+	}
+
+	public double getFunctionH() {
+		return functionH;
+	}
+
+	public void setFunctionH(double functionH) {
+		this.functionH = functionH;
+	}
+
+	public double getFunctionK() {
+		return functionK;
+	}
+
+	public void setFunctionK(double functionK) {
+		this.functionK = functionK;
+	}
+
+	public String getTag() {
+		return tag;
+	}
+
+	public void setTag(String tag) {
+		this.tag = tag;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	/**
+	 * Parameters:
+	 * o - the object to be compared.
+	 * R:
+	 * a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object.
+	 */
+	public int compareTo(DstarNode node) {
+
+		int compare;
+
+		if (this.functionK < node.functionK) {
+			compare = -1;
+		} else if (this.functionK > node.functionK) {
+			compare = 1;
+		} else {
+			compare = 0;
+		}
+
+		return compare;
+	}
+}
+
+class CostTable {
+	// cost table is stored using a hash table
+	private HashMap<String, Double> table;
+
+	/**
+	 * Default constructor
+	 */
+	public CostTable() {
+		table = new HashMap<String, Double>();
+	}
+
+	/**
+	 * Uses the labels from 2 nodes to build a hash key and stores value
+	 * at the hash key.
+	 *
+	 * Costs are 2 way, so we only need to store a combination of the key/value once
+	 *
+	 * @param node1 label of node for part of hash key
+	 * @param node2 lable of node for part of hash key
+	 * @param value value to store key
+	 */
+	public void setValue(String node1, String node2, double value) {
+		String hash1 = node1 + node2;
+
+		if (!isSet(node1, node2)) {
+			table.put(hash1, value);
+		}
+	}
+
+	/**
+	 * Updates the value for the derived hash key.  Since costs are 2 way the value
+	 * only needs to be stored once, so the key can be node1+node2 or node2+node1
+	 *
+	 * @param node1 label of node for part of hash key
+	 * @param node2 lable of node for part of hash key
+	 * @param value value to store for key
+	 */
+	public void updateValue(String node1, String node2, double value) {
+		String hash1 = node1 + node2;
+		String hash2 = node2 + node1;
+
+		if (table.containsKey(hash1)) { // if hash1 exits, then update hash1
+			table.put(hash1, value);
+		} else if (table.containsKey(hash2)) { // else if hash2 exists, then update hash2
+			table.put(hash2, value);
+		}
+	}
+
+	/**
+	 * Checks to see of the table contains the derived key
+	 *
+	 * @param node1 label of node for part of hash key
+	 * @param node2 lable of node for part of hash key
+	 * @return true if a key exists for node1+node2 or node2+node1 otherwise false
+	 */
+	private boolean isSet(String node1, String node2) {
+		String hash1 = node1 + node2;
+		String hash2 = node2 + node1;
+
+		boolean exists = false;
+		if (table.containsKey(hash1)) {
+			exists = true;
+		} else if (table.containsKey(hash2)) {
+			exists = true;
+		}
+
+		return exists;
+	}
+
+	/**
+	 * Returns the value at the derived hash key
+	 *
+	 * @param node1 label of node for part of hash key
+	 * @param node2 lable of node for part of hash key
+	 * @return  value at the given hash key, -1 if it isn't set
+	 */
+	public double getValue(String node1, String node2) {
+		String hash1 = node1 + node2;
+		String hash2 = node2 + node1;
+
+		double value = -1;
+		boolean set = isSet(node1, node2);
+
+		if (set) {
+			if (table.containsKey(hash1)) {
+				value = table.get(hash1);
+			} else if (table.containsKey(hash2)) {
+				value = table.get(hash2);
+			}
+		}
+
+		return value;
+	}
+
+	/**
+	 * Prints the cost table in no particular order
+	 */
+	public void printCostTable() {
+		int count = 0;
+		for (String key : table.keySet()) {
+
+			double value = table.get(key);
+			System.out.println(count + ": " + key + "=>" + String.format("% ,.1f", value));
+			count++;
+		}
+	}
 }
 
 class DstarPathFinder {
@@ -472,7 +596,7 @@ class DstarPathFinder {
 	// define cost table object
 	private CostTable costs;
 	// define map object
-	private DstarMap dstarMap;
+	private DstarMap map;
 	// define open list data structure
 	private PriorityQueue<DstarNode> openList;
 
@@ -482,25 +606,34 @@ class DstarPathFinder {
 	private DstarNode	goal;
 	private DstarNode	currentRobotPosition;
 
-	public DstarPathFinder(DstarMap dstarMap) {
-		this.dstarMap = dstarMap;
+	/**
+	 * Default constructor
+	 *
+	 * @param map a valid DstarMap
+	 */
+	public DstarPathFinder(DstarMap map) {
 		costs = new CostTable();
 		openList = new PriorityQueue<DstarNode>();
-		start = dstarMap.getStart();
-		currentRobotPosition = dstarMap.getRobotLocation();
-		goal = dstarMap.getGoal();
+		this.map = map;
+		start = map.getStart();
+		currentRobotPosition = map.getRobotLocation();
+		goal = map.getGoal();
+
 		buildCostTable();
 	}
 
 	/**
-	 * todo:call travelsMap to find optimal path
+	 * todo：调用这个方法找到最优路径
 	 */
-	public void travelsMap() {
-		// minimumK will be used to store what is returned from processState()
+	public void traverseMap() {
+
+		//todo：minimumK由processState()方法计算得到
 		double minimumK;
-		//add the goal to the openList
-		insetToOpenList(goal, 0);
-		dstarMap.print();
+
+		//todo:将目标点放入到openList中
+		insert(goal, 0);
+		map.print();
+
 		// print the map as initialized and prompt user to start next seciont
 		int userInput;
 		try {
@@ -508,43 +641,57 @@ class DstarPathFinder {
 			System.out.println("Ready to begin (press enter):");
 			userInput = System.in.read();
 		} catch (Exception e) {
+
 		}
-		//loop process state until minimumK == -1 or that start state is closed
+
+		//todo:循环处理节点状态直到minimumK == -1或者开始节点的状态变为closed
 		do {
 			minimumK = processState();
-		} while (minimumK != -1.0 && !start.getTag().equalsIgnoreCase("closed"));
-		//after processing initial loop of process state,print the current state of the dstarMap
+		} while (minimumK != -1.0 && !start.getTag().equalsIgnoreCase("CLOSED"));
+
+		// after processing initial loop of process state
+		// print the current state of the map
 		try {
-			dstarMap.print();
+			map.print();
 			System.out.println("Map has been expanded from goal...");
 			System.out.println("We will either begin tracing to goal, or the goal is unreachable (press enter):");
 			userInput = System.in.read();
 		} catch (Exception e) {
+
 		}
-		//if minimumK==-1 then goal is unreachable
-		if (minimumK == -1) {
+
+		// if minimum_K == -1.0 then goal is unreachable
+		if (minimumK == -1.0) {
 			System.out.println("Goal is unreachable...");
 			System.exit(0);
 		} else {
-			//start tracing path through back pointers,trace(追溯) until the goal is reached or the next is unknown
+
+			// start tracing path through back pointers
+			// trace until the goal is reached or the next node is unknown
 			do {
 				DstarNode next;
 				DstarNode here;
 				boolean unknownFound = false;
-				dstarMap.print();
+				map.print();
 
 				do {
-					//start from where to robot is current located
-					here = dstarMap.getRobotLocation();
-					//get next node from current location back pointer
+					// start from where to robot is current located
+					here = map.getRobotLocation();
+					// get next node from current location back pointer
 					next = here.getBackPointer();
-					//is next state unknown?
-					unknownFound = next.getState().equals("u");
+
+					// is next state unknown?
+					unknownFound = next.getState().equals("U");
+
+					// next state non unknown?
 					if (!unknownFound) {
-						//move the robot
-						dstarMap.setRobotLocation(next);
-						currentRobotPosition = dstarMap.getRobotLocation();
-						dstarMap.print();
+
+						// move the robot
+						map.setRobotLocation(next);
+						currentRobotPosition = map.getRobotLocation();
+
+						// print the map, wait for user input
+						map.print();
 						try {
 							System.out.println("Robot Moved!!");
 							System.out.println("Move again (press enter):");
@@ -552,36 +699,42 @@ class DstarPathFinder {
 						} catch (Exception e) {
 
 						}
-
 					}
 				} while (currentRobotPosition != goal && !unknownFound);
-				//if we reach the goal,exist
+
+				// if we reach the goal, exit
 				if (currentRobotPosition == goal) {
 					System.out.println("Goal has been reached!");
 					System.exit(0);
 				} else {
-					//we are not at the goal yet,let user know we found an unknown obstacle(障碍)，prompt for input to continue
+					// we are not at the goal yet
+					// let the user know we found an unknown obstacle
+					// prompt for input to continue
 					try {
 						System.out.println("Unknown Obstacle!!!");
 						System.out.println("Find another way (press enter):");
 						userInput = System.in.read();
 					} catch (Exception e) {
+
 					}
-					//modify the cost from here to next to infinity
+
+					// modify the cost from here to next to infinity
 					modifyCost(here, next, INFINITY_COST);
-					//loop process state again until minimumK < h(next) or minimumK == -1.0
+
+					// loop process state again until
+					// minimumK < h(next) or minimumK == -1.0
 					do {
 						minimumK = processState();
-					} while (minimumK < next.getH() && minimumK != -1.0 && !currentRobotPosition.getTag().equalsIgnoreCase("closed"));
-					//*BUG FIX, we weren't stopping the process state when the current robot position was closed, this caused the bot to recalculate too much and overwrite the correct path backPointers*//&& !(currentRobotPosition.equals(openList.peek())));
-					// if minimumK == -1.0 goal is unreachable, exit application
+					} while (minimumK < next.getFunctionH() && minimumK != -1.0 && !currentRobotPosition.getTag().equalsIgnoreCase("CLOSED"));//*BUG FIX, we weren't stopping the process state when the current robot position was closed, this caused the bot to recalculate too much and overwrite the correct path backpointers*//&& !(currentRobotPosition.equals(openList.peek())));
+
+					// if mimimum_K == -1.0 goal is unreachable, exit application
 					if (minimumK == -1.0) {
 						System.out.println("Goal is unreachable!");
 						System.exit(0);
 					}
 
-					//print the map, wait for user input
-					dstarMap.print();
+					// print the map, wait for user input
+					map.print();
 					try {
 						System.out.println("Whew... I found my way!!");
 						System.out.println("Move again (press enter):");
@@ -590,73 +743,114 @@ class DstarPathFinder {
 
 					}
 				}
+
 			} while (true);
-
 		}
-
 	}
 
 	/**
-	 * 用于计算到目标goal的最优路径
-	 * process the current node and sets neighbor values as deemed necessary
+	 * Modifies the cost of the paths of the unknown neighbors to infinity
+	 *
+	 * @param current
+	 * @param neighbor
+	 * @param newVal
+	 * @return
+	 */
+	private double modifyCost(DstarNode current, DstarNode neighbor, double newVal) {
+
+		//costs.updateValue(current.getLabel(), neighbor.getLabel(), newVal);
+
+		//discrepency.setFunctionH(INFINITY_COST);
+		ArrayList<DstarNode> neighborList = map.getNeighbors(neighbor.getRow(), neighbor.getColumn());
+
+		// update the arc path costs of neighbor to its neighbors
+		for (DstarNode each : neighborList) {
+			costs.updateValue(neighbor.getLabel(), each.getLabel(), INFINITY_COST);
+		}
+
+		//neighbor.setFunctionH(newVal);
+
+		// if neight is closed, then add it back to the open list with new h value
+		if (neighbor.getTag().equalsIgnoreCase("CLOSED")) {
+
+			insert(neighbor, newVal);
+		}
+
+		// get the new minimum k value on the open list
+		DstarNode current_Min = openList.peek();
+
+		return current_Min.getFunctionK();
+	}
+
+	/**
+	 * todo：处理当前节点的状态并设置邻点
 	 * @return
 	 */
 	private double processState() {
-		double kOld;
-		List<DstarNode> neighbors;
+		double oldFunctionK;
+		ArrayList<DstarNode> neighbors;
 		int userInput;
 		// STEP 1
 		// if open list is empty exit return -1
 		if (openList.isEmpty()) { return -1.0; }
-		if (currentRobotPosition.getK() == 10000 && currentRobotPosition.getH() == 10000) { return -1.0; }
-		// get node from head of openList (with minK)
+		if (currentRobotPosition.getFunctionK() == 10000 && currentRobotPosition.getFunctionH() == 10000) {
+			return -1.0;
+		}
+
+		// get node from head of openList (with mink)
 		DstarNode currentNode = openList.remove();
-		kOld = currentNode.getK();//k_Old = Get Min K
-		// and set it to closed	
-		currentNode.setTag("closed");//Delete X
+
+		oldFunctionK = currentNode.getFunctionK();//oldFunctionK = Get Min K
+
+		// and set it to closed
+		currentNode.setTag("CLOSED");//Delete X
 
 		// STEP 2 Re-routing if necessary
 		// refers to L4 - L7 in paper by Stentz
-		if (kOld < currentNode.getH()) {
+		if (oldFunctionK < currentNode.getFunctionH()) {
+
 			System.out.println("Step 2 - Rerouting - node: " + currentNode.getLabel());
-			neighbors = dstarMap.getNeighbors(currentNode.getRow(), currentNode.getColumn());
+
+			neighbors = map.getNeighbors(currentNode.getRow(), currentNode.getColumn());
 			for (DstarNode neighbor : neighbors) {
 				System.out.println("Updating Neighbor: " + neighbor.getLabel());
-				double costXthroughY = neighbor.getH() + costs.getValue(neighbor.getLabel(), currentNode.getLabel());
+				double costXThroughY = neighbor.getFunctionH() + costs.getValue(neighbor.getLabel(), currentNode.getLabel());
 
-				if (neighbor.getH() <= kOld && currentNode.getH() > costXthroughY) {
+				if (neighbor.getFunctionH() <= oldFunctionK && currentNode.getFunctionH() > costXThroughY) {
 					System.out.println("-- step 2 -- set back pointer to " + neighbor.getLabel());
 					System.out.println("current: " + currentNode.getLabel());
 
 					currentNode.setBackPointer(neighbor);
-					currentNode.setH(costXthroughY);
+					currentNode.setFunctionH(costXThroughY);
 				}
 			}
 		}
 
 		// Step 3 - usually done in initial map state processing
 		// refers to L8 - L13 in paper by Stentz
-		if (kOld == currentNode.getH()) {
+		if (oldFunctionK == currentNode.getFunctionH()) {
 			//System.out.println("Start Step 3");
-			neighbors = dstarMap.getNeighbors(currentNode.getRow(), currentNode.getColumn());
+
+			neighbors = map.getNeighbors(currentNode.getRow(), currentNode.getColumn());
+
 			for (DstarNode neighbor : neighbors) {
-				double costThroughX = currentNode.getH() + costs.getValue(currentNode.getLabel(), neighbor.getLabel());
+				double costThroughX = currentNode.getFunctionH() + costs.getValue(currentNode.getLabel(), neighbor.getLabel());
 				double roundedNumber = (double) Math.round(costThroughX * 10) / 10;
-				if (neighbor.getTag().equalsIgnoreCase("NEW") || (neighbor.getBackPointer() == currentNode && neighbor.getH() != costThroughX) || (neighbor.getBackPointer() != currentNode && neighbor.getH() > costThroughX)) {
+				if (neighbor.getTag().equalsIgnoreCase("NEW") || (neighbor.getBackPointer() == currentNode && neighbor.getFunctionH() != costThroughX) || (neighbor.getBackPointer() != currentNode && neighbor.getFunctionH() > costThroughX)) {
 
 					neighbor.setBackPointer(currentNode);
-					insetToOpenList(neighbor, roundedNumber);
+					insert(neighbor, roundedNumber);
 				}
 			}
 		}
 
 		// Step 4
-		// reference to L14 - L25 in paper by Stentz
+		// referces to L14 - L25 in paper by Stentz
 		else {
-			neighbors = dstarMap.getNeighbors(currentNode.getRow(), currentNode.getColumn());
+			neighbors = map.getNeighbors(currentNode.getRow(), currentNode.getColumn());
 			for (DstarNode neighbor : neighbors) {
-				double costThroughX = currentNode.getH() + costs.getValue(currentNode.getLabel(), neighbor.getLabel());
-				double costXthroughY = neighbor.getH() + costs.getValue(neighbor.getLabel(), currentNode.getLabel());
+				double costThroughX = currentNode.getFunctionH() + costs.getValue(currentNode.getLabel(), neighbor.getLabel());
+				double costXthroughY = neighbor.getFunctionH() + costs.getValue(neighbor.getLabel(), currentNode.getLabel());
 				//double roundedCostThroughX = costThroughX;
 				//	double roundedCostXThroughY = costXthroughY;
 
@@ -666,19 +860,19 @@ class DstarPathFinder {
 
 				// Step 5
 				// refers to L16 - L18 paper by Stentz
-				if (neighbor.getTag().equalsIgnoreCase("NEW") || (neighbor.getBackPointer() == currentNode && neighbor.getH() != costThroughX)) {
+				if (neighbor.getTag().equalsIgnoreCase("NEW") || (neighbor.getBackPointer() == currentNode && neighbor.getFunctionH() != costThroughX)) {
 
 					//routeFirstViaSecond(neighbor,currentNode);
 					neighbor.setBackPointer(currentNode);
-					insetToOpenList(neighbor, roundedCostThroughX);
+					insert(neighbor, roundedCostThroughX);
 
-				} else if (neighbor.getBackPointer() != currentNode && neighbor.getH() > roundedCostThroughX) {
-					roundedH = (double) Math.round(currentNode.getH() * 10) / 10;
-					insetToOpenList(currentNode, roundedH);
+				} else if (neighbor.getBackPointer() != currentNode && neighbor.getFunctionH() > roundedCostThroughX) {
+					roundedH = (double) Math.round(currentNode.getFunctionH() * 10) / 10;
+					insert(currentNode, roundedH);
 
-				} else if (neighbor.getBackPointer() != currentNode && currentNode.getH() > roundedCostXThroughY && neighbor.getTag().equalsIgnoreCase("closed") && neighbor.getH() > kOld) {
-					roundedH = (double) Math.round(neighbor.getH() * 10) / 10;
-					insetToOpenList(neighbor, roundedH);
+				} else if (neighbor.getBackPointer() != currentNode && currentNode.getFunctionH() > roundedCostXThroughY && neighbor.getTag().equalsIgnoreCase("CLOSED") && neighbor.getFunctionH() > oldFunctionK) {
+					roundedH = (double) Math.round(neighbor.getFunctionH() * 10) / 10;
+					insert(neighbor, roundedH);
 				}
 			}
 		}
@@ -686,13 +880,13 @@ class DstarPathFinder {
 		// set minK, of openList is not empty, then get the minK from open list
 		double minK = -1.0;
 		if (!openList.isEmpty()) {
-			minK = openList.peek().getK();
+			minK = openList.peek().getFunctionK();
 		}
 		try {
 
 			System.out.println("Planning....");
 			System.out.println("Current Path:");
-			dstarMap.print();
+			map.print();
 			System.out.println("Press ENTER to continue...");
 			userInput = System.in.read();
 		} catch (Exception e) {
@@ -704,7 +898,7 @@ class DstarPathFinder {
 	}
 
 	/**
-	 * routeFirstViaSecond from Dr. Kays notes, however we don't use this
+	 * routeFristViaSecond from Dr. Kays notes, however we don't use this
 	 *
 	 * TODO remove
 	 *
@@ -713,14 +907,14 @@ class DstarPathFinder {
 	 */
 	private void routeFirstViaSecond(DstarNode Y, DstarNode X) {
 		Y.setBackPointer(X);
-		Y.setH(X.getH() + costs.getValue(X.getLabel(), Y.getLabel()));
-		if (Y.getTag().equalsIgnoreCase("new")) {
-			Y.setK(Y.getH());
+		Y.setFunctionH(X.getFunctionH() + costs.getValue(X.getLabel(), Y.getLabel()));
+		if (Y.getTag().equalsIgnoreCase("NEW")) {
+			Y.setFunctionK(Y.getFunctionH());
 		}
 
 		/*
 		// since we are using a priority queue
-		// if Y is on the openList and the K 
+		// if Y is on the openList and the K
 		if(Y.getTag().equals("OPEN")){
 			openList.remove(Y);
 		}
@@ -729,93 +923,88 @@ class DstarPathFinder {
 		openList.add(Y);
 	}
 
-	private double modifyCost(DstarNode current, DstarNode neighbor, double newVal) {
-
-		//costs.updateValue(current.getLabel(), neighbor.getLabel(), newVal);
-		//discrepency.setH(INFINITY_COST);
-		List<DstarNode> neighborList = dstarMap.getNeighbors(neighbor.getRow(), neighbor.getColumn());
-
-		// update the arc path costs of neighbor to its neighbors
-		for (DstarNode each : neighborList) {
-			costs.updateValue(neighbor.getLabel(), each.getLabel(), INFINITY_COST);
-		}
-
-		//neighbor.setH(newVal);
-		// if neight is closed, then add it back to the open list with new h value
-		if (neighbor.getTag().equalsIgnoreCase("closed")) {
-			insetToOpenList(neighbor, newVal);
-		}
-
-		// get the new minimum k value on the open list
-		DstarNode currentMin = openList.peek();
-		return currentMin.getK();
-	}
-
 	/**
-	 * update a nodes K and H value and inserts/reinserts a node into the openList
+	 * Update a nodes k and h value and inserts/reinserts a node into the open list
+	 *
 	 * @param someNode
 	 * @param newH
 	 */
-	private void insetToOpenList(DstarNode someNode, double newH) {
+	private void insert(DstarNode someNode, double newH) {
 		if (newH > 10000) {
 			newH = 10000;
 		}
 		double roundedH;
 		double currentK;
 		DstarNode temp;
-		if (someNode.getTag().equalsIgnoreCase("new")) {
-			someNode.setK(newH);
-			someNode.setH(newH);
-			someNode.setTag("open");
+		if (someNode.getTag().equalsIgnoreCase("NEW")) {
+			someNode.setFunctionK(newH);
+			someNode.setFunctionH(newH);
+			someNode.setTag("OPEN");
 			openList.add(someNode);
 		}
-		if (someNode.getTag().equalsIgnoreCase("open")) {
-			currentK = someNode.getK();
+		if (someNode.getTag().equalsIgnoreCase("OPEN")) {
+			currentK = someNode.getFunctionK();
+
 			openList.remove(someNode);
-			someNode.setK(Math.min(currentK, newH));
+
+			someNode.setFunctionK(Math.min(currentK, newH));
 			openList.add(someNode);
+
 		}
-		if (someNode.getTag().equalsIgnoreCase("closed")) {
+		if (someNode.getTag().equalsIgnoreCase("CLOSED")) {
+
 			int userInput;
-			roundedH = (double) Math.round(someNode.getH() * 10) / 10;
-			someNode.setK(Math.min(roundedH, newH));
-			someNode.setH(newH);
-			someNode.setTag("open");
+			roundedH = (double) Math.round(someNode.getFunctionH() * 10) / 10;
+			someNode.setFunctionK(Math.min(roundedH, newH));
+			someNode.setFunctionH(newH);
+			someNode.setTag("OPEN");
 			openList.add(someNode);
+
 		}
 	}
 
 	/**
 	 * Initialized the cost table
 	 *
-	 * todo a lot of this is repative, and should be fixed
-	 * neighborOutOfBounds should be a public method in DstarMap
+	 * TODO a lot of this is repative, and should be fixed
+	 * neightbor OutOfBounds should be a public method in DstarMap
 	 */
 	private void buildCostTable() {
-		/**
-		 * loop all nodes,set cost between open nodes to 1 or 1.4
-		 */
-		int curX = 0;
-		int curY = 0;
+		//loop all nodes
+		// set cost between open nodes to 1 or 1.4
+
+		int current_x = 0;
+		int current_y = 0;
+
 		DstarNode neighbor;
-		for (int i = 0; i < dstarMap.getRows(); i++) {
-			for (int j = 0; j < dstarMap.getColumns(); j++) {
-				DstarNode current = dstarMap.getNode(i, j);
+		for (int i = 0; i < map.getRows(); i++) {
+			for (int j = 0; j < map.getColumns(); j++) {
+				DstarNode current = map.getNode(i, j);
+
+				// set top and bottom neighbor row values
 				int top = i - 1;
 				int bottom = i + 1;
+
+				// set left and right neighbor column values
 				int left = j - 1;
 				int right = j + 1;
+
+				// top left adjecent neighbor
 				if (!neighborOutOfBounds(top, left)) {
-					neighbor = dstarMap.getNode(top, left);
+
+					neighbor = map.getNode(top, left);
+
 					if (current.getState().equalsIgnoreCase("B") || neighbor.getState().equalsIgnoreCase("B")) {
 						costs.setValue(current.getLabel(), neighbor.getLabel(), INFINITY_COST);
 					} else {
 						costs.setValue(current.getLabel(), neighbor.getLabel(), ADJACENT_COST);
 					}
+
 				}
+
 				// direct top neighbor
 				if (!neighborOutOfBounds(top, j)) {
-					neighbor = dstarMap.getNode(top, j);
+					neighbor = map.getNode(top, j);
 
 					if (current.getState().equalsIgnoreCase("B") || neighbor.getState().equalsIgnoreCase("B")) {
 						costs.setValue(current.getLabel(), neighbor.getLabel(), INFINITY_COST);
@@ -826,7 +1015,7 @@ class DstarPathFinder {
 
 				// top right neighbor
 				if (!neighborOutOfBounds(top, right)) {
-					neighbor = dstarMap.getNode(top, right);
+					neighbor = map.getNode(top, right);
 
 					if (current.getState().equalsIgnoreCase("B") || neighbor.getState().equalsIgnoreCase("B")) {
 						costs.setValue(current.getLabel(), neighbor.getLabel(), INFINITY_COST);
@@ -837,7 +1026,7 @@ class DstarPathFinder {
 
 				// left direct neighbor
 				if (!neighborOutOfBounds(i, left)) {
-					neighbor = dstarMap.getNode(i, left);
+					neighbor = map.getNode(i, left);
 
 					if (current.getState().equalsIgnoreCase("B") || neighbor.getState().equalsIgnoreCase("B")) {
 						costs.setValue(current.getLabel(), neighbor.getLabel(), INFINITY_COST);
@@ -848,7 +1037,7 @@ class DstarPathFinder {
 
 				// right direct neighbor
 				if (!neighborOutOfBounds(i, right)) {
-					neighbor = dstarMap.getNode(i, right);
+					neighbor = map.getNode(i, right);
 
 					if (current.getState().equalsIgnoreCase("B") || neighbor.getState().equalsIgnoreCase("B")) {
 						costs.setValue(current.getLabel(), neighbor.getLabel(), INFINITY_COST);
@@ -859,7 +1048,7 @@ class DstarPathFinder {
 
 				// bottom left neighbor
 				if (!neighborOutOfBounds(bottom, left)) {
-					neighbor = dstarMap.getNode(bottom, left);
+					neighbor = map.getNode(bottom, left);
 
 					if (current.getState().equalsIgnoreCase("B") || neighbor.getState().equalsIgnoreCase("B")) {
 						costs.setValue(current.getLabel(), neighbor.getLabel(), INFINITY_COST);
@@ -870,7 +1059,7 @@ class DstarPathFinder {
 
 				// direct bottom neighbor
 				if (!neighborOutOfBounds(bottom, j)) {
-					neighbor = dstarMap.getNode(bottom, j);
+					neighbor = map.getNode(bottom, j);
 
 					if (current.getState().equalsIgnoreCase("B") || neighbor.getState().equalsIgnoreCase("B")) {
 						costs.setValue(current.getLabel(), neighbor.getLabel(), INFINITY_COST);
@@ -881,7 +1070,7 @@ class DstarPathFinder {
 
 				// bottom right neighbor
 				if (!neighborOutOfBounds(bottom, right)) {
-					neighbor = dstarMap.getNode(bottom, right);
+					neighbor = map.getNode(bottom, right);
 
 					if (current.getState().equalsIgnoreCase("B") || neighbor.getState().equalsIgnoreCase("B")) {
 						costs.setValue(current.getLabel(), neighbor.getLabel(), INFINITY_COST);
@@ -891,7 +1080,6 @@ class DstarPathFinder {
 				}
 			}
 		}
-
 	}
 
 	public void printCosts() {
@@ -910,21 +1098,29 @@ class DstarPathFinder {
 		System.out.println("List Head\t\tK\t\tH");
 		System.out.println("------------------------------------------------");
 		DstarNode node = openList.peek();
-		System.out.println(node.getLabel() + "\t\t\t" + String.format("% ,.1f", node.getK()) + "\t\t" + String.format("% ,.1f", node.getH()));
+		System.out.println(node.getLabel() + "\t\t\t" + String.format("% ,.1f", node.getFunctionK()) + "\t\t" + String.format("% ,.1f", node.getFunctionH()));
 
 		System.out.println("List Head\t\tK\t\tH");
 		System.out.println("------------------------------------------------");
 		for (DstarNode n : list) {
-			System.out.println(n.getLabel() + "\t\t\t" + String.format("% ,.1f", n.getK()) + "\t\t" + String.format("% ,.1f", n.getH()));
+			System.out.println(n.getLabel() + "\t\t\t" + String.format("% ,.1f", n.getFunctionK()) + "\t\t" + String.format("% ,.1f", n.getFunctionH()));
 		}
 	}
 
+	/**
+	 * 检验紧邻节点是否超出地图界限
+	 *
+	 * TODO get rid of this, and make the same method in DstarMap a public method
+	 *
+	 * @param row
+	 * @param column
+	 * @return
+	 */
 	private boolean neighborOutOfBounds(int row, int column) {
-		boolean outofbounds = false;
-		if (row < 0 || row >= dstarMap.getRows() || column < 0 || column >= dstarMap.getColumns()) {
-			outofbounds = true;
+		boolean outOfBounds = false;
+		if (row < 0 || row >= map.getRows() || column < 0 || column >= map.getColumns()) {
+			outOfBounds = true;
 		}
-
-		return outofbounds;
+		return outOfBounds;
 	}
 }
