@@ -1,6 +1,7 @@
 package com.carter.arithmetic;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -9,11 +10,24 @@ import java.util.List;
  */
 public class DstarCarterAlgorithm {
 	public static void main(String[] args) {
+		DstarCarterMap dstarMap = new DstarCarterMap(20, 20);
+		DstarCarterNode obstacle1 = new DstarCarterNode(4, 3);
+		DstarCarterNode obstacle2 = new DstarCarterNode(4, 4);
+		DstarCarterNode obstacle3 = new DstarCarterNode(4, 5);
+		DstarCarterNode obstacle4 = new DstarCarterNode(4, 6);
+		DstarCarterNode obstacle5 = new DstarCarterNode(5, 3);
+		DstarCarterNode obstacle6 = new DstarCarterNode(6, 3);
+		DstarCarterNode obstacle7 = new DstarCarterNode(7, 3);
+		List<DstarCarterNode> obstacleList = Arrays.asList(obstacle1, obstacle2, obstacle3, obstacle4, obstacle5,obstacle6,obstacle7);
+		dstarMap.setObstacle(dstarMap,obstacleList);
+
+		DstarCarter dstarCarter = new DstarCarter();
+		DstarCarterNode start = new DstarCarterNode(1, 2);
+		DstarCarterNode end = new DstarCarterNode(17, 11);
+		dstarCarter.runDstar(start,end);
+
 
 	}
-
-	//todo:初始化一张地图
-	DstarCarterMap map = new DstarCarterMap(7, 7);
 }
 
 class DstarCarterMap {
@@ -151,12 +165,27 @@ class DstarCarter {
 					insertOpenList(neighbour,minDstarNode.getFunctionH()+minDstarNode.getCost(minDstarNode,neighbour));
 				}
 			}
-			System.out.println("oldFunctionK<minDstarNode.functionH:"+minDstarNode.getFunctionK()+" "+minDstarNode.getFunctionH());
+			System.out.println("oldFunctionK=minDstarNode.functionH:"+minDstarNode.getFunctionK()+" "+minDstarNode.getFunctionH());
+		}else {
+			for (DstarCarterNode neighbour : dstarMap.getNeighbours(minDstarNode)) {
+				if (neighbour.getTag().equals("new")||neighbour.getParent()==minDstarNode&&neighbour.getFunctionH()!=minDstarNode.getFunctionH()+minDstarNode.getCost(minDstarNode,neighbour)){
+					neighbour.setParent(minDstarNode);
+					insertOpenList(neighbour,minDstarNode.getFunctionH()+minDstarNode.getCost(minDstarNode,neighbour));
+				}else {
+					if (neighbour.parent != minDstarNode&& neighbour.getFunctionH() > minDstarNode.getFunctionH() + minDstarNode.getCost(minDstarNode,neighbour)){
+						insertOpenList(minDstarNode,minDstarNode.getFunctionH());
+					}else {
+						if (neighbour.getParent()!=minDstarNode&&minDstarNode.getFunctionH()>neighbour.getFunctionH()+minDstarNode.getCost(minDstarNode,neighbour) &&neighbour.getTag().equals("close") && neighbour.getFunctionH()>oldFunctionK){
+							insertOpenList(neighbour,neighbour.getFunctionH());
+						}
+					}
+				}
+			}
+			System.out.println("oldFunctionK>minDstarNode.functionH:"+minDstarNode.getFunctionK()+" "+minDstarNode.getFunctionH());
+
 		}
 
-		return -1;
-
-
+		return getMinFunctionK(openList);
 	}
 
 	public void runDstar(DstarCarterNode start,DstarCarterNode end){
@@ -169,7 +198,47 @@ class DstarCarter {
 		}
 		start.setState("S");
 		DstarCarterNode startNode = start;
+		while (startNode!=end){
+			startNode = startNode.getParent();
+			startNode.setState("+");
+		}
+		startNode.setState("E");
+		System.out.println("障碍物未发生变化时，搜索的路径如下：");
+		dstarMap.printDstarCarterMap(dstarMap);
+		DstarCarterNode temp = startNode;
+		DstarCarterNode obstacle1 = new DstarCarterNode(9, 3);
+		DstarCarterNode obstacle2 = new DstarCarterNode(9, 4);
+		DstarCarterNode obstacle3 = new DstarCarterNode(9, 5);
+		DstarCarterNode obstacle4 = new DstarCarterNode(9, 6);
+		DstarCarterNode obstacle5 = new DstarCarterNode(9, 7);
+		DstarCarterNode obstacle6 = new DstarCarterNode(9, 8);
 
+		List<DstarCarterNode> obstacleList = Arrays.asList(obstacle1, obstacle2, obstacle3, obstacle4, obstacle5,obstacle6);
+		dstarMap.setObstacle(dstarMap,obstacleList);
+		/**
+		 * 从起始点开始，往目标点行进，当遇到障碍物时，重新修改代价，再寻找路径
+		 */
+		while (temp!=end){
+			temp.setState("*");
+			if (temp.getParent().getState().equals("#")){
+				modifyNode(temp,end);
+				continue;
+			}
+			temp = temp.getParent();
+		}
+		temp.setState("E");
+		System.out.println("障碍物发生变化时，搜索的路径如下(*为更新的路径)：");
+		dstarMap.printDstarCarterMap(dstarMap);
+	}
+
+	public void modifyNode(DstarCarterNode dstarNode,DstarCarterNode endNode){
+		modifyCost(dstarNode);
+		while (true){
+			double minK = processDstarNode(endNode);
+			if (minK>=dstarNode.getFunctionH()){
+				break;
+			}
+		}
 	}
 
 }
