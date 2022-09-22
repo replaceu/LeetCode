@@ -776,9 +776,9 @@ class DstarPathFinder {
 		}
 
 		// get the new minimum k value on the open list
-		DstarNode current_Min = openList.peek();
+		DstarNode currentMin = openList.peek();
 
-		return current_Min.getFunctionK();
+		return currentMin.getFunctionK();
 	}
 
 	/**
