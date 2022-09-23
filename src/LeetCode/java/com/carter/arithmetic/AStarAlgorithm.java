@@ -41,7 +41,7 @@ public class AStarAlgorithm {
 		for (int i = 0; i < maps.length; i++) {
 			for (int j = 0; j < maps[0].length; j++) {
 				if (j == 0) System.out.print(count++ + "|\t");
-				System.out.print(maps[i][j] + ",\t");
+				System.out.print(maps[i][j] + "\t");
 			}
 			System.out.println();
 		}
@@ -71,9 +71,9 @@ public class AStarAlgorithm {
 			for (int j = 0; j < map[0].length; j++) {
 				if (j == 0) System.out.print(count++ + "|\t");
 				if (exists(arrayList, i, j)) {
-					System.out.print("@,\t");
+					System.out.print("@\t");
 				} else {
-					System.out.print(map[i][j] + ",\t");
+					System.out.print(map[i][j] + "\t");
 				}
 
 			}
