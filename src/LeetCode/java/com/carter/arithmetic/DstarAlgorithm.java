@@ -766,12 +766,9 @@ class DstarPathFinder {
 		for (DstarNode each : neighborList) {
 			costs.updateValue(neighbor.getLabel(), each.getLabel(), INFINITY_COST);
 		}
-
 		//neighbor.setFunctionH(newVal);
-
 		// if neight is closed, then add it back to the open list with new h value
 		if (neighbor.getTag().equalsIgnoreCase("CLOSED")) {
-
 			insert(neighbor, newVal);
 		}
 
