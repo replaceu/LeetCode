@@ -164,7 +164,7 @@ class DstarCarter {
 		//removeOpenList(minDstarNode);
 		minDstarNode.setTag("close");
 
-		System.out.println("-->DstarNode:" + minDstarNode.getX() + "," + minDstarNode.getY() + " " + minDstarNode.getFunctionK() + "," + minDstarNode.getFunctionH());
+		//System.out.println("-->DstarNode:" + minDstarNode.getX() + "," + minDstarNode.getY() + " " + minDstarNode.getFunctionK() + "," + minDstarNode.getFunctionH());
 		if (oldFunctionK < minDstarNode.getFunctionH()) {
 			for (DstarCarterNode neighbour : dstarMap.getNeighbours(minDstarNode)) {
 				if (neighbour.getTag() != "new" && neighbour.getFunctionH() <= oldFunctionK && minDstarNode.getFunctionH() > neighbour.getFunctionH() + minDstarNode.getCost(minDstarNode, neighbour)) {
@@ -172,7 +172,7 @@ class DstarCarter {
 					minDstarNode.setFunctionH(neighbour.getFunctionH() + minDstarNode.getCost(minDstarNode, neighbour));
 				}
 			}
-			System.out.println("oldFunctionK < minDstarNode.functionH:" + minDstarNode.getFunctionK() + " " + minDstarNode.getFunctionH());
+			//System.out.println("oldFunctionK < minDstarNode.functionH:" + minDstarNode.getFunctionK() + " " + minDstarNode.getFunctionH());
 		} else if (oldFunctionK == minDstarNode.getFunctionH()) {
 			for (DstarCarterNode neighbour : dstarMap.getNeighbours(minDstarNode)) {
 				if (neighbour.getTag() == ("new") || (neighbour.getParent() == minDstarNode && neighbour.getFunctionH() != minDstarNode.getFunctionH() + minDstarNode.getCost(minDstarNode, neighbour)) || (neighbour.getParent() != minDstarNode && neighbour.getFunctionH() > minDstarNode.getFunctionH() + minDstarNode.getCost(minDstarNode, neighbour)) && neighbour != endNode) {
@@ -180,7 +180,7 @@ class DstarCarter {
 					insertOpenList(neighbour, minDstarNode.getFunctionH() + minDstarNode.getCost(minDstarNode, neighbour));
 				}
 			}
-			System.out.println("oldFunctionK = minDstarNode.functionH:" + minDstarNode.getFunctionK() + " " + minDstarNode.getFunctionH());
+			//System.out.println("oldFunctionK = minDstarNode.functionH:" + minDstarNode.getFunctionK() + " " + minDstarNode.getFunctionH());
 		} else {
 			for (DstarCarterNode neighbour : dstarMap.getNeighbours(minDstarNode)) {
 				if (neighbour.getTag() == ("new") || (neighbour.getParent() == minDstarNode && neighbour.getFunctionH() != minDstarNode.getFunctionH() + minDstarNode.getCost(minDstarNode, neighbour))) {
@@ -196,7 +196,7 @@ class DstarCarter {
 					}
 				}
 			}
-			System.out.println("oldFunctionK > minDstarNode.functionH:" + minDstarNode.getFunctionK() + " " + minDstarNode.getFunctionH());
+			//System.out.println("oldFunctionK > minDstarNode.functionH:" + minDstarNode.getFunctionK() + " " + minDstarNode.getFunctionH());
 		}
 
 		return getMinFunctionK();
@@ -226,9 +226,9 @@ class DstarCarter {
 		DstarCarterNode obstacle4 = new DstarCarterNode(9, 6);
 		DstarCarterNode obstacle5 = new DstarCarterNode(9, 7);
 		DstarCarterNode obstacle6 = new DstarCarterNode(9, 8);
-		DstarCarterNode obstacle7 = new DstarCarterNode(8, 3);
+		//DstarCarterNode obstacle7 = new DstarCarterNode(8, 3);
 
-		List<DstarCarterNode> obstacleList = Arrays.asList(obstacle1, obstacle2, obstacle3, obstacle4, obstacle5, obstacle6,obstacle7);
+		List<DstarCarterNode> obstacleList = Arrays.asList(obstacle1,obstacle2, obstacle3, obstacle4, obstacle5, obstacle6);
 		dstarMap.setObstacle(dstarMap, obstacleList);
 		/**
 		 * 从起始点开始，往目标点行进，当遇到障碍物时，重新修改代价，再寻找路径
