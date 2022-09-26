@@ -56,6 +56,7 @@ class DstarCarterMap {
 		for (int i = 0; i < map.length; i++) {
 			for (int j = 0; j < map[0].length; j++) {
 				if (j == 0) System.out.print(count++ + "|\t");
+
 				System.out.print(map[i][j].state + "\t");
 			}
 			System.out.println();
@@ -101,6 +102,7 @@ class DstarCarter {
 	public PriorityQueue<DstarCarterNode> openList;
 
 	//获取openList当中functionK的最小值
+
 	public double getMinFunctionK() {
 		if (openList.isEmpty()) { return -1; }
 		double minFunctionK = openList.stream().min(Comparator.comparing(DstarCarterNode::getFunctionK)).get().getFunctionK();
@@ -136,6 +138,7 @@ class DstarCarter {
 
 	public void modifyCost(DstarCarterNode dstarNode) {
 		if (dstarNode.getTag() == "close") {
+
 			insertOpenList(dstarNode, dstarNode.parent.functionH + dstarNode.getCost(dstarNode, dstarNode.parent));
 		}
 	}
@@ -155,10 +158,9 @@ class DstarCarter {
 	}
 
 	public double processDstarNode(DstarCarterNode endNode, DstarCarterMap dstarMap) {
+
 		double oldFunctionK;
-		if (openList.isEmpty()){
-			return -1.0;
-		}
+		if (openList.isEmpty()) { return -1.0; }
 		DstarCarterNode minDstarNode = openList.remove();
 		oldFunctionK = minDstarNode.getFunctionK();
 		//removeOpenList(minDstarNode);
@@ -172,30 +174,37 @@ class DstarCarter {
 					minDstarNode.setFunctionH(neighbour.getFunctionH() + minDstarNode.getCost(minDstarNode, neighbour));
 				}
 			}
+
 			//System.out.println("oldFunctionK < minDstarNode.functionH:" + minDstarNode.getFunctionK() + " " + minDstarNode.getFunctionH());
 		} else if (oldFunctionK == minDstarNode.getFunctionH()) {
 			for (DstarCarterNode neighbour : dstarMap.getNeighbours(minDstarNode)) {
 				if (neighbour.getTag() == ("new") || (neighbour.getParent() == minDstarNode && neighbour.getFunctionH() != minDstarNode.getFunctionH() + minDstarNode.getCost(minDstarNode, neighbour)) || (neighbour.getParent() != minDstarNode && neighbour.getFunctionH() > minDstarNode.getFunctionH() + minDstarNode.getCost(minDstarNode, neighbour)) && neighbour != endNode) {
 					neighbour.setParent(minDstarNode);
+
 					insertOpenList(neighbour, minDstarNode.getFunctionH() + minDstarNode.getCost(minDstarNode, neighbour));
 				}
 			}
+
 			//System.out.println("oldFunctionK = minDstarNode.functionH:" + minDstarNode.getFunctionK() + " " + minDstarNode.getFunctionH());
 		} else {
 			for (DstarCarterNode neighbour : dstarMap.getNeighbours(minDstarNode)) {
 				if (neighbour.getTag() == ("new") || (neighbour.getParent() == minDstarNode && neighbour.getFunctionH() != minDstarNode.getFunctionH() + minDstarNode.getCost(minDstarNode, neighbour))) {
 					neighbour.setParent(minDstarNode);
+
 					insertOpenList(neighbour, minDstarNode.getFunctionH() + minDstarNode.getCost(minDstarNode, neighbour));
 				} else {
 					if (neighbour.getParent() != minDstarNode && neighbour.getFunctionH() > minDstarNode.getFunctionH() + minDstarNode.getCost(minDstarNode, neighbour)) {
+
 						insertOpenList(minDstarNode, minDstarNode.getFunctionH());
 					} else {
 						if (neighbour.getParent() != minDstarNode && minDstarNode.getFunctionH() > neighbour.getFunctionH() + minDstarNode.getCost(minDstarNode, neighbour) && neighbour.getTag() == ("close") && neighbour.getFunctionH() > oldFunctionK) {
+
 							insertOpenList(neighbour, neighbour.getFunctionH());
 						}
 					}
 				}
 			}
+
 			//System.out.println("oldFunctionK > minDstarNode.functionH:" + minDstarNode.getFunctionK() + " " + minDstarNode.getFunctionH());
 		}
 
@@ -203,12 +212,13 @@ class DstarCarter {
 	}
 
 	public void runDstar(DstarCarterNode start, DstarCarterNode end, DstarCarterMap dstarMap) {
+
 		openList = new PriorityQueue<DstarCarterNode>();
 		double minimumK = 0;
-		insertOpenList(end,0);
+		insertOpenList(end, 0);
 
-		while (minimumK!=-1.0 &&!start.getTag().equals("close")) {
-			 minimumK = processDstarNode(dstarMap.map[end.getX()][end.getY()], dstarMap);
+		while (minimumK != -1.0 && !start.getTag().equals("close")) {
+			minimumK = processDstarNode(dstarMap.map[end.getX()][end.getY()], dstarMap);
 		}
 		start.setState("S");
 		DstarCarterNode startNode = start;
@@ -219,6 +229,7 @@ class DstarCarter {
 		startNode.setState("E");
 		System.out.println("障碍物未发生变化时，搜索的路径如下：");
 		dstarMap.printDstarCarterMap(dstarMap.map);
+
 		DstarCarterNode temp = start;
 		DstarCarterNode obstacle1 = new DstarCarterNode(9, 3);
 		DstarCarterNode obstacle2 = new DstarCarterNode(9, 4);
@@ -228,7 +239,7 @@ class DstarCarter {
 		DstarCarterNode obstacle6 = new DstarCarterNode(9, 8);
 		//DstarCarterNode obstacle7 = new DstarCarterNode(8, 3);
 
-		List<DstarCarterNode> obstacleList = Arrays.asList(obstacle1,obstacle2, obstacle3, obstacle4, obstacle5, obstacle6);
+		List<DstarCarterNode> obstacleList = Arrays.asList(obstacle1, obstacle2, obstacle3, obstacle4, obstacle5, obstacle6);
 		dstarMap.setObstacle(dstarMap, obstacleList);
 		/**
 		 * 从起始点开始，往目标点行进，当遇到障碍物时，重新修改代价，再寻找路径
@@ -236,7 +247,8 @@ class DstarCarter {
 		while (temp != end) {
 			temp.setState("*");
 			if (temp.getParent().getState() == ("#")) {
-				modifyNode(temp, end,dstarMap);
+
+				modifyNode(temp, end, dstarMap);
 				continue;
 			}
 			temp = temp.getParent();
@@ -246,7 +258,7 @@ class DstarCarter {
 		dstarMap.printDstarCarterMap(dstarMap.map);
 	}
 
-	public void modifyNode(DstarCarterNode dstarNode, DstarCarterNode endNode,DstarCarterMap dstarMap) {
+	public void modifyNode(DstarCarterNode dstarNode, DstarCarterNode endNode, DstarCarterMap dstarMap) {
 		modifyCost(dstarNode);
 		while (true) {
 			double minK = processDstarNode(endNode, dstarMap);
@@ -258,7 +270,7 @@ class DstarCarter {
 
 }
 
-class DstarCarterNode implements Comparable<DstarCarterNode>{
+class DstarCarterNode implements Comparable<DstarCarterNode> {
 	private static final double INFINITY_COST = 2 ^ 63 - 1;
 
 	public int x;
