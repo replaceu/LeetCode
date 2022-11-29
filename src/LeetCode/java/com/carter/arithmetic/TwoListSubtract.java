@@ -1,8 +1,6 @@
 package com.carter.arithmetic;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TwoListSubtract {
@@ -10,27 +8,30 @@ public class TwoListSubtract {
 		List<IntegralPointLog> upPointList = new ArrayList<>();
 		List<IntegralPointLog> delPointList = new ArrayList<>();
 
-		upPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "50", "101"));
-		upPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "10", "102"));
-		upPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "100", "104"));
-		upPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "200", "104"));
+		upPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "40", "101", new Date(2021, 10, 27)));
+		upPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "60", "102", new Date(2021, 10, 29)));
+		upPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "100", "103", new Date(2022, 1, 27)));
+		//upPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "200", "104", new Date(2021, 7, 20)));
 
-		delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-30", "201"));
-		delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-40", "202"));
-		delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-70", "203"));
+		delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-90", "201", new Date(2021, 11, 12)));
+		delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-50", "203", new Date(2021, 11, 13)));
+		delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-5", "202", new Date(2022, 11, 28)));
 		//delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-70", "203"));
-		delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-100", "204"));
+		//delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-100", "204", new Date(2022, 11, 20)));
 		getListSubtract(upPointList, delPointList);
 	}
 
 	private static void getListSubtract(List<IntegralPointLog> upPointList, List<IntegralPointLog> delPointList) {
+		List<IntegralPointLog> toInsertList = new ArrayList<>();
 		int remainValue = 0;
 		int i = 0;
 		int j = 0;
 
 		//todo:得先把数据洗一下
 		upPointList = cleanIntegralPointList(upPointList);
+		upPointList = upPointList.stream().sorted(Comparator.comparing(IntegralPointLog::getDate)).collect(Collectors.toList());
 		delPointList = cleanIntegralPointList(delPointList);
+		delPointList = delPointList.stream().sorted(Comparator.comparing(IntegralPointLog::getDate)).collect(Collectors.toList());
 
 		while (i < upPointList.size() && j < delPointList.size()) {
 			if (upPointList.get(i).getRemainVal() != null && upPointList.get(i).getRemainVal().equals("error")) {
@@ -47,14 +48,54 @@ public class TwoListSubtract {
 
 			remainValue = computeUpValue + computeDelValue;
 			if (remainValue >= 0) {
-				upPointList.get(i).setRemainVal(String.valueOf(remainValue));
-				delPointList.get(j).setRemainVal(String.valueOf(0));
-				j++;
+				Date startDate = upPointList.get(i).getDate();
+
+				Date endDate = new Date(startDate.getYear() + 1, startDate.getMonth(),startDate.getDate());
+				boolean notExpired = checkDataExpired(delPointList.get(j).getDate(),startDate,endDate);
+				if (notExpired){
+					upPointList.get(i).setRemainVal(String.valueOf(remainValue));
+					delPointList.get(j).setRemainVal(String.valueOf(0));
+					j++;
+				}else {
+					upPointList.get(i).setRemainVal(String.valueOf(0));
+					if(endDate.getTime()<new Date().getTime()){
+
+						IntegralPointLog toInsetLog = new IntegralPointLog();
+						toInsetLog.setRemainVal(String.valueOf(0));
+						toInsetLog.setId(UUID.randomUUID().toString());
+						toInsetLog.setChangeVal(String.valueOf(-computeUpValue));
+						toInsetLog.setDate(endDate);
+						toInsertList.add(toInsetLog);
+					}
+
+					i++;
+
+				}
+
 
 			} else {
-				upPointList.get(i).setRemainVal(String.valueOf(0));
-				delPointList.get(j).setRemainVal(String.valueOf(remainValue));
-				i++;
+				Date startDate = upPointList.get(i).getDate();
+
+				Date endDate = new Date(startDate.getYear() + 1, startDate.getMonth(), startDate.getDate());
+				boolean notExpired = checkDataExpired(delPointList.get(j).getDate(),startDate,endDate);
+				if (notExpired){
+					upPointList.get(i).setRemainVal(String.valueOf(0));
+					delPointList.get(j).setRemainVal(String.valueOf(remainValue));
+					i++;
+				}else {
+					upPointList.get(i).setRemainVal(String.valueOf(0));
+					if(endDate.getTime()<new Date().getTime()){
+
+						IntegralPointLog toInsetLog = new IntegralPointLog();
+						toInsetLog.setRemainVal(String.valueOf(0));
+						toInsetLog.setId(UUID.randomUUID().toString());
+						toInsetLog.setChangeVal(String.valueOf(-computeUpValue));
+						toInsetLog.setDate(endDate);
+						toInsertList.add(toInsetLog);
+					}
+					i++;
+				}
+
 			}
 		}
 
@@ -63,16 +104,27 @@ public class TwoListSubtract {
 			if (upPointList.get(k).getRemainVal() == null) {
 				upPointList.get(k).setBeforeVal(upPointList.get(k).getChangeVal());
 			}
-			System.out.println("changeVal:" + upPointList.get(k).getChangeVal() + "|" + "remainVal:" + upPointList.get(k).getRemainVal());
+			System.out.println("changeVal:" + upPointList.get(k).getChangeVal() + "|" + "remainVal:" + upPointList.get(k).getRemainVal()+"|"+"date:"+upPointList.get(k).getDate().getYear()+"-"+upPointList.get(k).getDate().getMonth()+"-"+upPointList.get(k).getDate().getDate());
 
 		}
 		for (int k = 0; k < delPointList.size(); k++) {
 			if (delPointList.get(k).getRemainVal() == null) {
 				delPointList.get(k).setRemainVal(delPointList.get(k).getChangeVal());
 			}
-			System.out.println("changeVal:" + delPointList.get(k).getChangeVal() + "|" + "remainVal:" + delPointList.get(k).getRemainVal());
+			System.out.println("changeVal:" + delPointList.get(k).getChangeVal() + "|" + "remainVal:" + delPointList.get(k).getRemainVal()+"|"+"date:"+delPointList.get(k).getDate().getYear()+"-"+delPointList.get(k).getDate().getMonth()+"-"+delPointList.get(k).getDate().getDate());
 
 		}
+
+		for (IntegralPointLog insert : toInsertList) {
+			System.out.println("新增："+"changeVal:" + insert.getChangeVal() + "|" + "remainVal:" + insert.getRemainVal()+"|"+"date:"+insert.getDate().getYear()+"-"+insert.getDate().getMonth()+"-"+insert.getDate().getDate());
+		}
+	}
+
+	private static boolean checkDataExpired(Date date, Date startDate, Date endDate) {
+		if (date.after(startDate)&&date.before(endDate)){
+			return true;
+		}
+		return false;
 	}
 
 	private static List<IntegralPointLog> cleanIntegralPointList(List<IntegralPointLog> delPointList) {
@@ -83,7 +135,7 @@ public class TwoListSubtract {
 				}
 			} else {
 				if (delPointList.get(k).getBeforeVal().equals(delPointList.get(k - 1).getBeforeVal())) {
-					delPointList.get(k-1).setRemainVal("error");
+					delPointList.get(k - 1).setRemainVal("error");
 				}
 			}
 		}
@@ -101,11 +153,25 @@ class IntegralPointLog {
 
 	String beforeVal;
 
-	public IntegralPointLog(String id, String changeVal, String beforeVal) {
+	Date date;
+
+	public IntegralPointLog() {
+	}
+
+	public IntegralPointLog(String id, String changeVal, String beforeVal, Date date) {
 		this.id = id;
 		this.changeVal = changeVal;
 		this.beforeVal = beforeVal;
+		this.date = date;
 
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
 	}
 
 	public String getBeforeVal() {
