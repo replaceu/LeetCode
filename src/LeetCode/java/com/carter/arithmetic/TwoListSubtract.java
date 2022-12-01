@@ -3,96 +3,95 @@ package com.carter.arithmetic;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class TwoListSubtract {
 	public static void main(String[] args) {
-		List<IntegralPointLog> upPointList = new ArrayList<>();
-		List<IntegralPointLog> delPointList = new ArrayList<>();
+		List<IntegralPointLogDo> upPointLogList = new ArrayList<>();
+		List<IntegralPointLogDo> delPointLogList = new ArrayList<>();
 
-		upPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "50", "101"));
-		upPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "10", "102"));
-		upPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "100", "104"));
-		upPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "200", "104"));
+		upPointLogList.add(new IntegralPointLogDo(UUID.randomUUID().toString(), "50", "101"));
+		upPointLogList.add(new IntegralPointLogDo(UUID.randomUUID().toString(), "10", "102"));
+		upPointLogList.add(new IntegralPointLogDo(UUID.randomUUID().toString(), "100", "104"));
+		upPointLogList.add(new IntegralPointLogDo(UUID.randomUUID().toString(), "200", "104"));
 
-		delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-30", "201"));
-		delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-40", "202"));
-		delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-70", "203"));
-		//delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-70", "203"));
-		delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-100", "204"));
-		getListSubtract(upPointList, delPointList);
+		delPointLogList.add(new IntegralPointLogDo(UUID.randomUUID().toString(), "-30", "201"));
+		delPointLogList.add(new IntegralPointLogDo(UUID.randomUUID().toString(), "-40", "202"));
+		delPointLogList.add(new IntegralPointLogDo(UUID.randomUUID().toString(), "-70", "203"));
+		//delPointLogList.add(new IntegralPointLogDo(UUID.randomUUID().toString(), "-70", "203"));
+		delPointLogList.add(new IntegralPointLogDo(UUID.randomUUID().toString(), "-100", "204"));
+		getListSubtract(upPointLogList, delPointLogList);
 	}
 
-	private static void getListSubtract(List<IntegralPointLog> upPointList, List<IntegralPointLog> delPointList) {
+	private static void getListSubtract(List<IntegralPointLogDo> upPointLogList, List<IntegralPointLogDo> delPointLogList) {
 		int remainValue = 0;
 		int i = 0;
 		int j = 0;
 
 		//todo:得先把数据洗一下
-		upPointList = cleanIntegralPointList(upPointList);
-		delPointList = cleanIntegralPointList(delPointList);
+		upPointLogList = cleanIntegralPointList(upPointLogList);
+		delPointLogList = cleanIntegralPointList(delPointLogList);
 
-		while (i < upPointList.size() && j < delPointList.size()) {
-			if (upPointList.get(i).getRemainVal() != null && upPointList.get(i).getRemainVal().equals("error")) {
+		while (i < upPointLogList.size() && j < delPointLogList.size()) {
+			if (upPointLogList.get(i).getRemainVal() != null && upPointLogList.get(i).getRemainVal().equals("error")) {
 				i++;
 				continue;
 			}
-			if (delPointList.get(j).getRemainVal() != null && delPointList.get(j).getRemainVal().equals("error")) {
+			if (delPointLogList.get(j).getRemainVal() != null && delPointLogList.get(j).getRemainVal().equals("error")) {
 				j++;
 				continue;
 			}
 
-			Integer computeUpValue = upPointList.get(i).getRemainVal() == null ? Integer.valueOf(upPointList.get(i).getChangeVal()) : Integer.valueOf(upPointList.get(i).getRemainVal());
-			Integer computeDelValue = delPointList.get(j).getRemainVal() == null ? Integer.valueOf(delPointList.get(j).getChangeVal()) : Integer.valueOf(delPointList.get(j).getRemainVal());
+			Integer computeUpValue = upPointLogList.get(i).getRemainVal() == null ? Integer.valueOf(upPointLogList.get(i).getChangeVal()) : Integer.valueOf(upPointLogList.get(i).getRemainVal());
+			Integer computeDelValue = delPointLogList.get(j).getRemainVal() == null ? Integer.valueOf(delPointLogList.get(j).getChangeVal()) : Integer.valueOf(delPointLogList.get(j).getRemainVal());
 
 			remainValue = computeUpValue + computeDelValue;
 			if (remainValue >= 0) {
-				upPointList.get(i).setRemainVal(String.valueOf(remainValue));
-				delPointList.get(j).setRemainVal(String.valueOf(0));
+				upPointLogList.get(i).setRemainVal(String.valueOf(remainValue));
+				delPointLogList.get(j).setRemainVal(String.valueOf(0));
 				j++;
 
 			} else {
-				upPointList.get(i).setRemainVal(String.valueOf(0));
-				delPointList.get(j).setRemainVal(String.valueOf(remainValue));
+				upPointLogList.get(i).setRemainVal(String.valueOf(0));
+				delPointLogList.get(j).setRemainVal(String.valueOf(remainValue));
 				i++;
 			}
 		}
 
-		for (int k = 0; k < upPointList.size(); k++) {
+		for (int k = 0; k < upPointLogList.size(); k++) {
 
-			if (upPointList.get(k).getRemainVal() == null) {
-				upPointList.get(k).setBeforeVal(upPointList.get(k).getChangeVal());
+			if (upPointLogList.get(k).getRemainVal() == null) {
+				upPointLogList.get(k).setBeforeVal(upPointLogList.get(k).getChangeVal());
 			}
-			System.out.println("changeVal:" + upPointList.get(k).getChangeVal() + "|" + "remainVal:" + upPointList.get(k).getRemainVal());
+			System.out.println("changeVal:" + upPointLogList.get(k).getChangeVal() + "|" + "remainVal:" + upPointLogList.get(k).getRemainVal());
 
 		}
-		for (int k = 0; k < delPointList.size(); k++) {
-			if (delPointList.get(k).getRemainVal() == null) {
-				delPointList.get(k).setRemainVal(delPointList.get(k).getChangeVal());
+		for (int k = 0; k < delPointLogList.size(); k++) {
+			if (delPointLogList.get(k).getRemainVal() == null) {
+				delPointLogList.get(k).setRemainVal(delPointLogList.get(k).getChangeVal());
 			}
-			System.out.println("changeVal:" + delPointList.get(k).getChangeVal() + "|" + "remainVal:" + delPointList.get(k).getRemainVal());
+			System.out.println("changeVal:" + delPointLogList.get(k).getChangeVal() + "|" + "remainVal:" + delPointLogList.get(k).getRemainVal());
 
 		}
 	}
 
-	private static List<IntegralPointLog> cleanIntegralPointList(List<IntegralPointLog> delPointList) {
-		for (int k = 0; k < delPointList.size(); k++) {
-			if (k < delPointList.size() - 1) {
-				if (delPointList.get(k).getBeforeVal().equals(delPointList.get(k + 1).getBeforeVal())) {
-					delPointList.get(k).setRemainVal("error");
+	private static List<IntegralPointLogDo> cleanIntegralPointList(List<IntegralPointLogDo> delPointLogList) {
+		for (int k = 0; k < delPointLogList.size(); k++) {
+			if (k < delPointLogList.size() - 1) {
+				if (delPointLogList.get(k).getBeforeVal().equals(delPointLogList.get(k + 1).getBeforeVal())) {
+					delPointLogList.get(k).setRemainVal("error");
 				}
 			} else {
-				if (delPointList.get(k).getBeforeVal().equals(delPointList.get(k - 1).getBeforeVal())) {
-					delPointList.get(k-1).setRemainVal("error");
+				if (delPointLogList.get(k).getBeforeVal().equals(delPointLogList.get(k - 1).getBeforeVal())) {
+					delPointLogList.get(k-1).setRemainVal("error");
 				}
 			}
 		}
-		return delPointList;
+		return delPointLogList;
 	}
 
 }
 
-class IntegralPointLog {
+class IntegralPointLogDo {
 	String id;
 
 	String changeVal;
@@ -101,7 +100,7 @@ class IntegralPointLog {
 
 	String beforeVal;
 
-	public IntegralPointLog(String id, String changeVal, String beforeVal) {
+	public IntegralPointLogDo(String id, String changeVal, String beforeVal) {
 		this.id = id;
 		this.changeVal = changeVal;
 		this.beforeVal = beforeVal;
