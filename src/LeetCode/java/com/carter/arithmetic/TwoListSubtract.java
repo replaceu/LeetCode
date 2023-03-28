@@ -38,18 +38,15 @@ public class TwoListSubtract {
 
 	private static void getListSubtract(List<IntegralPointLog> upPointList, List<IntegralPointLog> delPointList) {
 		Date today = new Date(2022, 11, 30);
-
 		List<IntegralPointLog> toInsertList = new ArrayList<>();
 		int remainValue = 0;
 		int i = 0;
 		int j = 0;
-
 		//todo:得先把数据洗一下
 		upPointList = cleanIntegralPointList(upPointList);
 		upPointList = upPointList.stream().sorted(Comparator.comparing(IntegralPointLog::getDate)).collect(Collectors.toList());
 		delPointList = cleanIntegralPointList(delPointList);
 		delPointList = delPointList.stream().sorted(Comparator.comparing(IntegralPointLog::getDate)).collect(Collectors.toList());
-
 		while (i < upPointList.size() && j < delPointList.size()) {
 			if (upPointList.get(i).getRemainVal() != null && upPointList.get(i).getRemainVal().equals("error")) {
 				i++;
@@ -59,7 +56,6 @@ public class TwoListSubtract {
 				j++;
 				continue;
 			}
-
 			Integer computeUpValue = upPointList.get(i).getRemainVal() == null ? Integer.valueOf(upPointList.get(i).getChangeVal()) : Integer.valueOf(upPointList.get(i).getRemainVal());
 			Integer computeDelValue = delPointList.get(j).getRemainVal() == null ? Integer.valueOf(delPointList.get(j).getChangeVal()) : Integer.valueOf(delPointList.get(j).getRemainVal());
 
@@ -91,7 +87,6 @@ public class TwoListSubtract {
 				}
 			} else {
 				Date startDate = upPointList.get(i).getDate();
-
 				Date endDate = new Date(startDate.getYear() + 1, startDate.getMonth(), startDate.getDate());
 				boolean notExpired = checkDataExpired(delPointList.get(j).getDate(), startDate, endDate);
 				if (notExpired) {
@@ -124,7 +119,6 @@ public class TwoListSubtract {
 					upPointList.get(k).setRemainVal(upPointList.get(k).getChangeVal());
 				}
 				System.out.println("id:" + upPointList.get(k).getId() + " |" + "changeVal:" + upPointList.get(k).getChangeVal() + " |" + "remainVal:" + upPointList.get(k).getRemainVal() + " |" + "date:" + upPointList.get(k).getDate().getYear() + "-" + upPointList.get(k).getDate().getMonth() + "-" + upPointList.get(k).getDate().getDate());
-
 			}
 			for (int k = 0; k < delPointList.size(); k++) {
 				if (delPointList.get(k).getRemainVal() == null) {
