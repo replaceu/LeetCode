@@ -2,7 +2,9 @@ package com.carter.arithmetic;
 
 public class GetMaxAvgList {
     public static void main(String[] args) {
-
+        double[] arr = {2,2,3};
+        String result = getMaxAvgSubList(3, 2, arr);
+        System.out.println(result);
     }
 
     public static String getMaxAvgSubList(int n,int l,double[] numbers){
@@ -10,7 +12,7 @@ public class GetMaxAvgList {
         double maxAvg = Integer.MIN_VALUE;
         for (double num : numbers) {
             minAvg = Math.min(num,minAvg);
-            maxAvg = Math.min(num,maxAvg);
+            maxAvg = Math.max(num,maxAvg);
         }
         double diff = maxAvg/Math.pow(10,10);
 
@@ -29,7 +31,7 @@ public class GetMaxAvgList {
     private static boolean check(int n, int l, double[] numbers, double avg, int[] ans) {
         double fact =1;
         for (int i = 0; i < l; i++) {
-            fact *= numbers[i] / avg;
+            fact*= numbers[i] / avg;
         }
         if (fact >= 1) {
             ans[0] = 0;
