@@ -19,35 +19,36 @@ public class GetMaxSubArray {
 
 	public static void main(String[] args) {
 		List<Integer> list = new ArrayList<>();
-		//list.add(13);
+		list.add(32);
+		list.add(30);
+		list.add(29);
+		list.add(27);
+		list.add(26);
+		list.add(25);
+		list.add(24);
+		list.add(23);
+		list.add(22);
+		list.add(21);
+		list.add(20);
+		list.add(19);
+		list.add(18);
+		list.add(17);
+		list.add(16);
+
+		list.add(14);
 		//list.add(12);
-		list.add(11);
+		//list.add(11);
 		list.add(10);
-		//list.add(9);
+		list.add(9);
 		list.add(8);
 		list.add(7);
 		list.add(6);
 		list.add(5);
 		list.add(4);
 		list.add(3);
-		list.add(2);
+		//list.add(2);
 		list.add(1);
-		//list.add(-2);
-		//
-		//		Integer eachMaxDayAddDays = 0;
-		//		Integer maxDayAddDays = 0;
-		//		List<Integer> integerArrayList = new ArrayList<>();
-		//		for (int i = 0; i < list.size(); i++) {
-		//			list = list.subList(eachMaxDayAddDays, list.size());
-		//			eachMaxDayAddDays = getMaxDayAddDays(list);
-		//			integerArrayList.add(eachMaxDayAddDays);
-		//
-		//		}
-		//		for (int i = 0; i < integerArrayList.size(); i++) {
-		//			System.out.println(integerArrayList.get(i));
-		//		}
 
-		//int[] arr = { 10, 9, 8, 7, 5, 4, 3, 1, 0, -1, -2, -8 };
 		List<Integer> retList = new ArrayList<>();
 		List<Integer> maxDays = getMaxDays(list, retList, 1);
 		for (int i = 0; i < maxDays.size(); i++) {
@@ -69,20 +70,20 @@ public class GetMaxSubArray {
 					left++;
 					size++;
 					retList.add(size);
-					//					if (size > pre) {
-					//						retList.clear();
-					//						retList.add(size);
-					//					}
+					if (size > pre) {
+						retList.clear();
+						retList.add(size);
+					}
 					break;
 				}
 			}
 		}
 		while (left == right) {
 			if (list.get(left) - list.get(left - 1) == -1) {
-				//if (size + 1 > pre) {
-				//retList.clear();
-				retList.add(size + 1);
-				//}
+				if (size + 1 > pre) {
+					retList.clear();
+					retList.add(size + 1);
+				}
 				break;
 			} else {
 				retList.add(1);
@@ -92,7 +93,7 @@ public class GetMaxSubArray {
 
 		if (left < right) {
 			List<Integer> subList = list.subList(left, list.size());
-			getMaxDays(subList, retList, size);
+			getMaxDays(subList, retList, retList.get(0));
 		}
 		return retList;
 	}

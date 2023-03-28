@@ -8,20 +8,22 @@ public class TwoListSubtract {
 		List<IntegralPointLog> upPointList = new ArrayList<>();
 		List<IntegralPointLog> delPointList = new ArrayList<>();
 
-		upPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "40", "101", new Date(2021, 10, 27)));
-		upPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "60", "102", new Date(2021, 10, 29)));
-		upPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "100", "103", new Date(2022, 1, 27)));
+		upPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "40", "101", new Date(2021, 9, 27)));
+		upPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "60", "102", new Date(2021, 9, 29)));
+		//upPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "100", "103", new Date(2022, 1, 27)));
 		//upPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "200", "104", new Date(2021, 7, 20)));
 
-		delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-90", "201", new Date(2021, 11, 12)));
-		delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-50", "203", new Date(2021, 11, 13)));
-		delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-5", "202", new Date(2022, 11, 28)));
+		//delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-90", "201", new Date(2021, 11, 12)));
+		delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-50", "203", new Date(2022, 10, 13)));
+		delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-5", "202", new Date(2022, 10, 28)));
 		//delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-70", "203"));
 		//delPointList.add(new IntegralPointLog(UUID.randomUUID().toString(), "-100", "204", new Date(2022, 11, 20)));
-		getListSubtract(upPointList, delPointList);
+
+		Date today = new Date(2022, 12, 1);
+		getListSubtract(upPointList, delPointList,today);
 	}
 
-	private static void getListSubtract(List<IntegralPointLog> upPointList, List<IntegralPointLog> delPointList) {
+	private static void getListSubtract(List<IntegralPointLog> upPointList, List<IntegralPointLog> delPointList,Date today) {
 		List<IntegralPointLog> toInsertList = new ArrayList<>();
 		int remainValue = 0;
 		int i = 0;
@@ -58,7 +60,7 @@ public class TwoListSubtract {
 					j++;
 				}else {
 					upPointList.get(i).setRemainVal(String.valueOf(0));
-					if(endDate.getTime()<new Date().getTime()){
+					if(endDate.before(today)){
 
 						IntegralPointLog toInsetLog = new IntegralPointLog();
 						toInsetLog.setRemainVal(String.valueOf(0));
@@ -84,7 +86,7 @@ public class TwoListSubtract {
 					i++;
 				}else {
 					upPointList.get(i).setRemainVal(String.valueOf(0));
-					if(endDate.getTime()<new Date().getTime()){
+					if(endDate.before(today)){
 
 						IntegralPointLog toInsetLog = new IntegralPointLog();
 						toInsetLog.setRemainVal(String.valueOf(0));
