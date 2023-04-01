@@ -29,6 +29,14 @@ public class GraphTransferTime {
         return res.stream().min((a, b) -> a - b).get();
     }
 
+    /**
+     * @param i 横坐标
+     * @param j 纵坐标
+     * @param delay 已累计的时间延值
+     * @param last 上一个节点的时延值，用于和当前节点时延值对比，若相同，则新增时延值-1
+     * @param path 记录扫描过的节点的位置，避免重复扫描
+     * @param res 记录各种从起点到终点的路径的时延值
+     */
     public static void depthFirstSearch(int i,int j,int delay,int last,HashSet<Integer> path,List<Integer> res){
         //todo:当前节点的延时值
         int current = matrix[i][j];
