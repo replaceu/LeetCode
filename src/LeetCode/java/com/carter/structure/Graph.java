@@ -208,9 +208,8 @@ public class Graph {
 		graph.insertEdge(5, 6, 1);
 
 		graph.showGraph();
-
-				System.out.println("深度优先搜索");
-				graph.depthFirstSearch(); // A->B->C->D->E [1->2->4->8->5->3->6->7]
+		System.out.println("深度优先搜索");
+		graph.depthFirstSearch(); // A->B->C->D->E [1->2->4->8->5->3->6->7]
 		//		System.out.println("广度优先搜索");
 		//		graph.broadFirstSearch();
 
