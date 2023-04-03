@@ -19,7 +19,7 @@ public class AStarAlgorithm {
 	public static void main(String[] args) {
 		//定点:起点终点
 		Node startNode = new Node(8, 2);
-		Node endNode = new Node(2, 4);
+		Node endNode = new Node(6, 4);
 		//尝试寻找最短路径
 		Node path = new AStarAlgorithm().findAstarPath(startNode, endNode);
 
