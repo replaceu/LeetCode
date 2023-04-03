@@ -54,7 +54,7 @@ public class GraphTransferTime {
             int newJ = j + offset[j];
             //todo:将二维坐标，转成一维坐标 pos
             int position = newI*m+newJ;
-            //todo：如果新位置越界，或者新位置已经扫描过，则停止地柜
+            //todo：如果新位置越界，或者新位置已经扫描过，则停止递归
             if (newI>=0&&newI<m&&newJ>=0&&newJ<n&&!path.contains(position)){
                 path.add(position);
                 depthFirstSearch(newI,newJ,delay+current-(flag?1:0),current,path,res);
