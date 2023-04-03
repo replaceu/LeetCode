@@ -18,11 +18,13 @@ public class GraphNewTransferTime {
 
     private List<Node> findDelayPath(Node start, Node end){
         List<Node> res = new ArrayList<>();
-        depthFirstSearch(0,0,start,end,0,res);
+        List<Node> path = new ArrayList<>();
+        path.add(start);
+        depthFirstSearch(0,0,end,0,res,path);
         return res;
     }
 
-    private void depthFirstSearch(int i,int j,Node start, Node end, int delay,List<Node> res) {
+    private void depthFirstSearch(int i,int j, Node end, int delay,List<Node> res,List<Node> path) {
         Node current = new Node(i, j, delayMap[i][j]);
         boolean flag = current.delay==current.parent.delay;
         if (i==end.x&&j== end.y){
@@ -36,6 +38,11 @@ public class GraphNewTransferTime {
             int newI = i + direction[0];
             int newJ = j + direction[1];
             Node position = new Node(newI, newJ, delayMap[newI][newJ]);
+            if(position.getX()>=0&&position.getY()>=0&&position.getY()<end.getY()&&position.getX()<end.getY()&&!path.contains(position)){
+                path.add(position);
+                depthFirstSearch(newI,newJ,end,delay+ current.getDelay()-(flag?1:0),res,path);
+                path.remove(position);
+            }
 
         }
 
