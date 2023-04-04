@@ -211,7 +211,7 @@ public class AStarAlgorithm {
 		for (int i = 0; i < 4; i++) {
 			int neighborX = currentNode.x + direction[i][0];
 			int neighborY = currentNode.y + direction[i][1];
-			//todo:如果当前节点的相邻节点可达且不在闭合列表当中（closeList）中
+			//todo:如果当前节点的相邻节点可达且不在闭合列表当中（openList）中
 			if (canReach(neighborX, neighborY) && !exist(openList, neighborX, neighborY)) {
 				nodeList.add(new Node(neighborX, neighborY));
 			}

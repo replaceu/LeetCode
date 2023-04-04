@@ -12,41 +12,97 @@ import java.util.List;
 public class GraphNewTransferTime {
     public static final int[][] directions = {{-1, 0}, {0, 1}, {1, 0}, {0, -1},{-1,1},{1,1},{-1,-1},{1,-1}};
     public static final int[][] delayMap = {{0,2,2},{1,2,1},{2,2,1}};
+
+    public List<Node> openList = new ArrayList<>();
+    public List<Node> closeList = new ArrayList<>();
     public static void main(String[] args) {
+        Node start = new Node(0, 0, 0);
+        Node end = new Node(2, 2, 1);
+        printMap(delayMap);
+        GraphNewTransferTime graphNewTransferTime = new GraphNewTransferTime();
+        graphNewTransferTime.findDelayPath(start,end,0);
 
     }
 
-    private List<Node> findDelayPath(Node start, Node end){
-        List<Node> res = new ArrayList<>();
-        List<Node> path = new ArrayList<>();
-        path.add(start);
-        depthFirstSearch(0,0,end,0,res,path);
-        return res;
-    }
-
-    private void depthFirstSearch(int i,int j, Node end, int delay,List<Node> res,List<Node> path) {
-        Node current = new Node(i, j, delayMap[i][j]);
-        boolean flag = current.delay==current.parent.delay;
-        if (i==end.x&&j== end.y){
-            delay+=current.delay-(flag?1:0);
-            current.setDelay(delay);
-            res.add(current);
-            return;
-        }
-
-        for (int[] direction : directions) {
-            int newI = i + direction[0];
-            int newJ = j + direction[1];
-            Node position = new Node(newI, newJ, delayMap[newI][newJ]);
-            if(position.getX()>=0&&position.getY()>=0&&position.getY()<end.getY()&&position.getX()<end.getY()&&!path.contains(position)){
-                path.add(position);
-                depthFirstSearch(newI,newJ,end,delay+ current.getDelay()-(flag?1:0),res,path);
-                path.remove(position);
+    public Node findDelayPath(Node start, Node end,int delay){
+        //todo:将起点加入openList
+        openList.add(start);
+        while (openList.size()>0){
+            //todo:寻找当前延时值最小的点
+            Node currentNode = findMinDelayOpenList();
+            //todo:从openList中移除
+            openList.remove(currentNode);
+            closeList.add(currentNode);
+            List<Node> neighborNodeList = getNeighborNodeList(currentNode);
+            for (Node neighbour : neighborNodeList) {
+                if (exist(openList,neighbour.x,neighbour.y)){
+                    if (neighbour.delay== currentNode.delay){
+                        delay = delay+ neighbour.delay-1;
+                    }else {
+                        delay = delay+ neighbour.delay;
+                    }
+                }else {
+                    if (neighbour.delay== currentNode.delay){
+                        delay = delay+ neighbour.delay-1;
+                    }else {
+                        delay = delay+ neighbour.delay;
+                    }
+                    openList.add(neighbour);
+                }
             }
-
+            //如果终点在openList中，则代表找到路径
+            if (findPath(openList,end)!=null){
+                return findPath(openList,end);
+            }
         }
+        return findPath(openList,end);
+    }
 
+    private Node findPath(List<Node> openList, Node end) {
+        for (Node node : openList) {
+            if (node.x== end.x&&node.y== end.y){
+                return node;
+            }
+        }
+        return null;
+    }
 
+    private List<Node> getNeighborNodeList(Node currentNode) {
+        List<Node> nodeList = new ArrayList<>();
+        for (int[] direction : directions) {
+            int neighborX = currentNode.x + direction[0];
+            int neighborY = currentNode.y + direction[1];
+            if (checkPath(neighborX,neighborY)&&!exist(openList,neighborX,neighborY)){
+                nodeList.add(new Node(neighborX,neighborY,delayMap[neighborX][neighborY]));
+            }
+        }
+        return nodeList;
+    }
+
+    private boolean exist(List<Node> openList, int neighborX, int neighborY) {
+        for (Node node : openList) {
+            if (node.x==neighborX&&node.y==neighborY){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Node findMinDelayOpenList() {
+        Node tmpNode = openList.get(0);
+        for (Node node : openList) {
+            if (node.delay< tmpNode.delay){
+                tmpNode = node;
+            }
+        }
+        return tmpNode;
+    }
+
+    private static boolean checkPath(int x,int y) {
+        if (x>=0&&y>=0&&x<delayMap.length&&y<delayMap[0].length){
+            return true;
+        }
+        return false;
     }
 
     /**

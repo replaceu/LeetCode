@@ -4,6 +4,7 @@ package com.carter.structure;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * 有 M*N 的节点短阵，每个节点可以向 8 个方向(上、下、左、右及四个斜线方向)转发
@@ -15,9 +16,19 @@ public class GraphTransferTime {
     static int[][] matrix;
     static int m;
     static int n;
-    static int[][] offsets =  {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
+    static int[][] offsets =  {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
     public static void main(String[] args) {
-
+        Scanner sc = new Scanner(System.in);
+        m = sc.nextInt();
+        n = sc.nextInt();
+        matrix = new int[m][n];
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                matrix[i][j] = sc.nextInt();
+            }
+        }
+        int result = getResult(matrix);
+        System.out.println(result);
     }
 
     public static int getResult(int[][] matrix){
@@ -38,6 +49,9 @@ public class GraphTransferTime {
      * @param res 记录各种从起点到终点的路径的时延值
      */
     public static void depthFirstSearch(int i,int j,int delay,int last,HashSet<Integer> path,List<Integer> res){
+        if (i==2&&j==2){
+            System.out.println();
+        }
         //todo:当前节点的延时值
         int current = matrix[i][j];
         // todo:flag 用于标记，当前节点和上一个节点的时延值是否相同，若相同，则新增的时延值要-1
@@ -51,7 +65,7 @@ public class GraphTransferTime {
         //深度优先搜索当前点的八个方向
         for (int[] offset : offsets) {
             int newI = i + offset[0];
-            int newJ = j + offset[j];
+            int newJ = j + offset[1];
             //todo:将二维坐标，转成一维坐标 pos
             int position = newI*m+newJ;
             //todo：如果新位置越界，或者新位置已经扫描过，则停止递归
