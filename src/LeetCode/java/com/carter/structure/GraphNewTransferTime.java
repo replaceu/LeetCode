@@ -1,6 +1,7 @@
 package com.carter.structure;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -20,7 +21,11 @@ public class GraphNewTransferTime {
 		Node end = new Node(2, 2, 1);
 		printMap(delayMap);
 		GraphNewTransferTime graphNewTransferTime = new GraphNewTransferTime();
-		graphNewTransferTime.depthFirstSearch(start, end);
+		//graphNewTransferTime.depthFirstSearch(start, end);
+		HashSet<Node> path = new HashSet<>();
+		List<Node> res = new ArrayList<>();
+		path.add(start);
+		graphNewTransferTime.getAllPaths(start,path,res);
 		System.out.println();
 
 	}
@@ -28,13 +33,48 @@ public class GraphNewTransferTime {
 	private void depthFirstSearch(Node start, Node end) {
 
 		List<Node> neighborList = getNeighborList(start);
+		List<Node> path = new ArrayList<>();
 
 		for (Node node : neighborList) {
 			boolean[][] isVisited = new boolean[delayMap[0].length][delayMap.length];
 			isVisited[start.x][start.y] = true;
-			depthFirstSearch(isVisited, node, end);
+			path.add(node);
+			depthFirstSearch(isVisited, node, end,path);
 		}
 	}
+
+	private void getAllPaths(Node current, HashSet<Node> path,List<Node> res){
+		System.out.print(getLocation(current));
+		if (current.x==delayMap[0].length-1&&current.y==delayMap.length-1){
+			System.out.println();
+			return;
+		}
+		for (int i = 0; i < 8; i++) {
+			int newX = current.x + directions[i][0];
+			int newY = current.y + directions[i][1];;
+			//todo：如果新位置越界，或者新位置已经扫描过，则停止递归
+			if (newX>=0&&newX<delayMap[0].length&&newY>=0&&newY<delayMap.length&&checkIsVisited(path,newX,newY).x==-1){
+				Node newNode = new Node(newX, newY, delayMap[newX][newY]);
+				path.add(newNode);
+				getAllPaths(newNode,path,res);
+				path.remove(newNode);
+			}
+
+		}
+
+
+	}
+
+	private Node checkIsVisited(HashSet<Node> path, int newX, int newY) {
+		Node newNode = new Node(-1, -1, -1);
+		for (Node node : path) {
+			if (node.x==newX&&node.y==newY){
+				newNode=node;
+			}
+		}
+		return newNode;
+	}
+
 
 	private List<Node> getNeighborList(Node node) {
 		List<Node> nodeList = new ArrayList<>();
@@ -49,26 +89,30 @@ public class GraphNewTransferTime {
 		return nodeList;
 	}
 
-	private void depthFirstSearch(boolean[][] isVisited, Node start, Node end) {
+	private void depthFirstSearch(boolean[][] isVisited, Node start, Node end,List<Node> path) {
 		System.out.print(getLocation(start) + "->");
 		//todo:将节点设置为已经访问
 		isVisited[start.x][start.y] = true;
 		//todo:查找节点（x,y）的第一个紧邻节点
-		Node neighbour = getFirstNeighbor(start, isVisited);
-		if (neighbour.x == end.x && neighbour.y == end.y) {
-			System.out.print(getLocation(neighbour));
-			System.out.println();
-			//isVisited = new boolean[delayMap[0].length][delayMap.length];
-			//isVisited[0][0]=true;
-		}
+		List<Node> neighborList = getNeighborList(start);
+		for (Node neighbour : neighborList) {
+			if (neighbour.x == end.x && neighbour.y == end.y) {
+				System.out.print(getLocation(neighbour));
+				System.out.println();
+				//isVisited = new boolean[delayMap[0].length][delayMap.length];
+				//isVisited[0][0]=true;
+				//todo:如果邻接的节点已经访问过，找到下一个邻接节点
+				//neighbour = getNextNeighbor(start, isVisited);
+			}
 
-		if (neighbour.x != -1 && !isVisited[neighbour.x][neighbour.y] && !checkEnd(neighbour, end)) {
-			depthFirstSearch(isVisited, neighbour, end);
-		}else {
-			//todo:如果邻接的节点已经访问过，找到下一个邻接节点
-			getNextNeighbor(start,isVisited);
+			if (neighbour.x != -1 && !isVisited[neighbour.x][neighbour.y] && !checkEnd(neighbour, end)) {
+				depthFirstSearch(isVisited, neighbour, end,path);
+			}else {
+				isVisited[end.x][end.y]=false;
+				neighbour = getNextNeighbor(start, isVisited);
+				//depthFirstSearch(isVisited,neighbour,end,path);
+			}
 		}
-
 
 	}
 
@@ -140,7 +184,7 @@ class Node {
 		this.delay = delay;
 	}
 
-	public Node parent;
+	public Node preNode;
 
 	public int getX() {
 		return x;
@@ -166,11 +210,11 @@ class Node {
 		this.delay = delay;
 	}
 
-	public Node getParent() {
-		return parent;
+	public Node getPreNode() {
+		return preNode;
 	}
 
-	public void setParent(Node parent) {
-		this.parent = parent;
+	public void setPreNode(Node preNode) {
+		this.preNode = preNode;
 	}
 }
