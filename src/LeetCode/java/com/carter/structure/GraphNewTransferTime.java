@@ -13,6 +13,7 @@ import java.util.List;
 public class GraphNewTransferTime {
 	public static final int[][]	directions	= { { -1, 0 }, { 0, 1 }, { 1, 0 }, { 0, -1 }, { -1, 1 }, { 1, 1 }, { -1, -1 }, { 1, -1 } };
 	public static final int[][]	delayMap	= { { 0, 2, 2 }, { 1, 2, 1 }, { 2, 2, 1 } };
+	public static boolean[][] isVisited =new boolean[delayMap[0].length][delayMap.length];
 
 	public List<Node> openList = new ArrayList<>();
 
@@ -26,8 +27,6 @@ public class GraphNewTransferTime {
 		List<Node> res = new ArrayList<>();
 		path.add(start);
 		graphNewTransferTime.getAllPaths(start,path,res);
-		System.out.println();
-
 	}
 
 	private void depthFirstSearch(Node start, Node end) {
@@ -44,20 +43,20 @@ public class GraphNewTransferTime {
 	}
 
 	private void getAllPaths(Node current, HashSet<Node> path,List<Node> res){
-		System.out.print(getLocation(current));
+
 		if (current.x==delayMap[0].length-1&&current.y==delayMap.length-1){
-			System.out.println();
-			return;
+			List<Node> nodes = new ArrayList<>(path);
 		}
 		for (int i = 0; i < 8; i++) {
 			int newX = current.x + directions[i][0];
-			int newY = current.y + directions[i][1];;
+			int newY = current.y + directions[i][1];
 			//todo：如果新位置越界，或者新位置已经扫描过，则停止递归
-			if (newX>=0&&newX<delayMap[0].length&&newY>=0&&newY<delayMap.length&&checkIsVisited(path,newX,newY).x==-1){
+			if (newX>=0&&newX<delayMap[0].length&&newY>=0&&newY<delayMap.length&&isVisited[newX][newY]!=true){
 				Node newNode = new Node(newX, newY, delayMap[newX][newY]);
+				isVisited[newX][newY]=true;
 				path.add(newNode);
 				getAllPaths(newNode,path,res);
-				path.remove(newNode);
+				isVisited[newX][newY]=false;
 			}
 
 		}
